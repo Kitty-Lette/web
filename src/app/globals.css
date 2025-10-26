@@ -205,6 +205,30 @@
   }
 }
 
+@keyframes nftTrain {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes trainPassThrough {
+  0% {
+    transform: translateX(0%);
+  }
+  50% {
+    transform: translateX(120%);
+  }
+  50.01% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
 .ocean-bg {
   background: linear-gradient(135deg, 
     #E6F3FF 0%,     /* Very Light Blue */

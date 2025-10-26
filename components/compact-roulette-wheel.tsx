@@ -13,23 +13,25 @@ const nftImages = [
 export function CompactRouletteWheel() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [lastResult, setLastResult] = useState<typeof nftImages[0] | null>(null)
-  const [animatingImages, setAnimatingImages] = useState<typeof nftImages>([])
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const handleSpin = () => {
     setIsSpinning(true)
     setLastResult(null)
+    setCurrentImageIndex(0)
     
-    // Create repeating train of images for continuous loop
-    const trainImages = [...nftImages, ...nftImages, ...nftImages, ...nftImages]
-    setAnimatingImages(trainImages)
+    // Cycle through images during spinning
+    const imageInterval = setInterval(() => {
+      setCurrentImageIndex(prev => (prev + 1) % nftImages.length)
+    }, 800) // Change image every 800ms
     
-    // Simulate spin duration - slower animation
+    // Simulate spin duration with train pass-through animation
     setTimeout(() => {
+      clearInterval(imageInterval)
       const randomIndex = Math.floor(Math.random() * nftImages.length)
       const selectedNft = nftImages[randomIndex]
       setLastResult(selectedNft)
       setIsSpinning(false)
-      setAnimatingImages([])
     }, 6000)
   }
 
@@ -45,32 +47,79 @@ export function CompactRouletteWheel() {
         {/* NFT Display Container */}
         <div className="w-full bg-white rounded-2xl border-2 border-gray-100 mb-8 shadow-inner p-6">
           {isSpinning ? (
-            <div className="relative h-32 overflow-hidden">
-              <div className="absolute inset-0 flex items-center">
-                <div className="flex animate-[trainLoop_6s_ease-in-out_infinite] space-x-8">
-                  {animatingImages.map((nft, index) => (
-                    <div key={index} className="shrink-0 group">
-                      <div className="relative mt-4 mb-8">
-                        <div className="w-24 h-24 bg-white rounded-2xl border-2 border-gray-200 p-3 shadow-sm">
-                          <Image
-                            src={nft.src}
-                            alt={nft.name}
-                            width={72}
-                            height={72}
-                            className="object-contain w-full h-full"
-                          />
-                        </div>
-                        {/* Rarity Badge */}
-                        <div className={`absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-semibold ${
-                          nft.type === 'legendary' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
-                          nft.type === 'rare' ? 'bg-purple-100 text-purple-800 border border-purple-200' :
-                          'bg-blue-100 text-blue-800 border border-blue-200'
-                        }`}>
-                          {nft.rarity}
-                        </div>
-                      </div>
+            <div className="flex justify-center">
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 w-full max-w-sm">
+                {/* Spinning NFT Image with Train Pass-Through Animation */}
+                <div className="relative aspect-square bg-gray-50 overflow-hidden">
+                  {/* Static background */}
+                  <div className="absolute inset-0 bg-gray-50"></div>
+                  
+                  {/* Animated NFT Image */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-full h-full animate-[trainPassThrough_4s_linear_infinite]">
+                      <Image
+                        src={nftImages[currentImageIndex].src}
+                        alt={nftImages[currentImageIndex].name}
+                        width={300}
+                        height={300}
+                        className="object-cover w-full h-full"
+                      />
                     </div>
-                  ))}
+                  </div>
+                  
+                  {/* Dynamic Rarity Badge */}
+                  <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold z-10 backdrop-blur-sm animate-pulse ${
+                    nftImages[currentImageIndex].type === 'legendary' ? 'bg-yellow-100/90 text-yellow-800' :
+                    nftImages[currentImageIndex].type === 'rare' ? 'bg-purple-100/90 text-purple-800' :
+                    'bg-blue-100/90 text-blue-800'
+                  }`}>
+                    {nftImages[currentImageIndex].rarity}
+                  </div>
+                </div>
+                
+                {/* Card Content - same structure as static version */}
+                <div className="p-4 space-y-3">
+                  {/* NFT Name */}
+                  <h3 className="text-lg font-bold text-gray-900 animate-pulse">
+                    {nftImages[currentImageIndex].name}
+                  </h3>
+                  
+                  {/* NFT Details */}
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Collectible</span>
+                      <span className="font-medium">NFT</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Creator</span>
+                      <span className="font-medium">Kitty Lette</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Rarity</span>
+                      <span className={`font-medium animate-pulse ${
+                        nftImages[currentImageIndex].type === 'legendary' ? 'text-yellow-600' :
+                        nftImages[currentImageIndex].type === 'rare' ? 'text-purple-600' :
+                        'text-blue-600'
+                      }`}>
+                        {nftImages[currentImageIndex].rarity}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Stats Row */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div className="flex items-center space-x-1 text-blue-600">
+                      <span className="text-lg font-bold animate-pulse">🎯</span>
+                      <span className="text-xs">selecting</span>
+                    </div>
+                    <div className="flex items-center space-x-1 text-blue-600">
+                      <span className="text-lg font-bold animate-pulse">🎲</span>
+                      <span className="text-xs">rolling</span>
+                    </div>
+                    <div className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 animate-pulse">
+                      In Progress
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
