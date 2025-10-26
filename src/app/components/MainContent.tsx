@@ -8,9 +8,9 @@ interface MainContentProps {
 
 export function MainContent({ onPopupChange }: MainContentProps) {
   return (
-    <div className="relative z-10 h-full flex flex-col items-center justify-center p-4 space-y-6 overflow-y-auto">
+    <div className="relative z-10 h-full flex flex-col items-center justify-center p-1 space-y-2 overflow-y-auto">
       <div
-        className="w-full max-w-7xl rounded-2xl shadow-lg border border-gray-200 overflow-hidden relative z-10"
+        className="w-full max-w-5xl rounded-xl shadow-lg border border-gray-200 overflow-hidden relative z-10"
         style={{
           background: `
             radial-gradient(ellipse 70% 50% at 30% 20%, rgba(255, 255, 255, 0.95), transparent 70%),
