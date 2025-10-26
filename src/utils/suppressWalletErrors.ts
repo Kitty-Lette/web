@@ -86,13 +86,13 @@ export function suppressWalletExtensionErrors() {
       event.preventDefault();
       return true;
     }
-    return originalOnUnhandledRejection ? originalOnUnhandledRejection(event) : false;
+    return originalOnUnhandledRejection ? originalOnUnhandledRejection.call(window, event) : false;
   };
 
   const originalAddEventListener = window.addEventListener;
-  window.addEventListener = function(type, listener, options) {
+  (window as any).addEventListener = function(type: string, listener: any, options?: any) {
     if (type === 'error' || type === 'unhandledrejection') {
-      const wrappedListener = function(event: any) {
+      const wrappedListener = (event: any) => {
         const message = event.message || String(event.reason || '');
         if (isWalletExtensionError(message) ||
             isWalletExtensionError(event.error) ||
@@ -102,7 +102,7 @@ export function suppressWalletExtensionErrors() {
           event.stopImmediatePropagation && event.stopImmediatePropagation();
           return false;
         }
-        return listener.call(this, event);
+        return listener(event);
       };
       return originalAddEventListener.call(this, type, wrappedListener, options);
     }
