@@ -92,7 +92,9 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
     if (spinHash && !isSpinLoading && spinStatus === SpinStatus.SPINNING) {
       setIsSpinning(true);
       setLastResult(null);
-      setCompletedSpinHash(spinHash); // Save the spin hash for display in modal
+      
+      // Set the completed spin hash immediately when we get a confirmed spinHash
+      setCompletedSpinHash(spinHash);
       
       setTimeout(() => {
         // eslint-disable-next-line react-hooks/immutability
