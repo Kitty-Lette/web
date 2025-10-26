@@ -117,7 +117,7 @@ export function CompactRouletteWheel() {
       case "legendary":
         return [5, 15, 100, 10]; // 5% Common, 15% Rare, 70% Legendary, 10% Mythic
       case "mythic":
-        return [5, 10, 15, 100]; // 5% Common, 10% Rare, 15% Legendary, 70% Mythic
+        return [1, 1, 1, 97]; // 5% Common, 10% Rare, 15% Legendary, 70% Mythic
       case "equal":
         return [25, 25, 25, 25]; // Equal chance for all
       case "normal":
