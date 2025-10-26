@@ -72,7 +72,29 @@ export default function Home() {
           )}
           
           {/* Connect Button */}
-          <ConnectButton showBalance={false} />
+          <ConnectButton.Custom>
+            {({ openConnectModal, connectModalOpen }) => (
+              <button
+                onClick={openConnectModal}
+                className="cursor-pointer relative overflow-hidden rounded-full h-10 px-4 font-medium text-white shadow-sm border border-gray-300/30 transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute inset-0 opacity-80">
+                  <Balatro
+                    isRotate={true}
+                    mouseInteraction={false}
+                    pixelFilter={400}
+                    color1="#4F46E5"
+                    color2="#3B82F6"
+                    color3="#1E40AF"
+                    spinSpeed={1.0}
+                    contrast={2.5}
+                    lighting={0.4}
+                  />
+                </div>
+                <span className="relative z-10">Connect Wallet</span>
+              </button>
+            )}
+          </ConnectButton.Custom>
         </div>
       )}
 
