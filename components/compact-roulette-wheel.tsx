@@ -429,25 +429,57 @@ export function CompactRouletteWheel() {
                 duration: 0.4
               }}
             >
-              {/* Balatro Background for Popup */}
+              {/* Balatro Background for Popup - Dynamic based on rarity */}
               <div className="absolute inset-0 z-0">
                 <Balatro
                   isRotate={true}
                   mouseInteraction={false}
-                  pixelFilter={600}
-                  color1="#1e3a8a"
-                  color2="#0f172a" 
-                  color3="#fbbf24"
-                  contrast={3.0}
-                  lighting={0.4}
-                  spinAmount={0.2}
-                  spinSpeed={0.8}
-                  spinRotation={-0.8}
+                  pixelFilter={lastResult.type === "mythic" || lastResult.type === "legendary" ? 400 : 600}
+                  color1={
+                    lastResult.type === "mythic" 
+                      ? "#a855f7" // Purple
+                      : lastResult.type === "legendary"
+                      ? "#f59e0b" // Amber
+                      : lastResult.type === "rare"
+                      ? "#8b5cf6" // Purple
+                      : "#3b82f6" // Blue
+                  }
+                  color2={
+                    lastResult.type === "mythic" 
+                      ? "#06b6d4" // Cyan
+                      : lastResult.type === "legendary"
+                      ? "#dc2626" // Red
+                      : lastResult.type === "rare"
+                      ? "#1e1b4b" // Deep purple
+                      : "#1e3a8a" // Deep blue
+                  }
+                  color3={
+                    lastResult.type === "mythic" 
+                      ? "#1e1b4b" // Deep purple
+                      : lastResult.type === "legendary"
+                      ? "#7c2d12" // Dark brown
+                      : lastResult.type === "rare"
+                      ? "#0f0f23" // Very dark purple
+                      : "#0f172a" // Dark slate
+                  }
+                  contrast={lastResult.type === "mythic" || lastResult.type === "legendary" ? 4.5 : 3.0}
+                  lighting={lastResult.type === "mythic" || lastResult.type === "legendary" ? 0.6 : 0.4}
+                  spinAmount={lastResult.type === "mythic" || lastResult.type === "legendary" ? 0.35 : 0.2}
+                  spinSpeed={lastResult.type === "mythic" || lastResult.type === "legendary" ? 1.8 : 0.8}
+                  spinRotation={lastResult.type === "mythic" || lastResult.type === "legendary" ? -1.5 : -0.8}
                 />
               </div>
 
-              {/* Overlay for readability */}
-              <div className="absolute inset-0 z-5 bg-gradient-to-b from-white/85 via-white/75 to-white/85" />
+              {/* Overlay for readability - Adjusted based on rarity */}
+              <div className={`absolute inset-0 z-5 ${
+                lastResult.type === "mythic" 
+                  ? "bg-gradient-to-b from-purple-50/70 via-cyan-50/60 to-purple-50/70"
+                  : lastResult.type === "legendary"
+                  ? "bg-gradient-to-b from-orange-50/75 via-red-50/65 to-orange-50/75"
+                  : lastResult.type === "rare"
+                  ? "bg-gradient-to-b from-purple-50/80 via-purple-50/70 to-purple-50/80"
+                  : "bg-gradient-to-b from-white/85 via-white/75 to-white/85"
+              }`} />
               {/* Header */}
               <div className="relative z-10 p-6 pb-4 border-b border-white/20">
                 <motion.button
@@ -456,7 +488,7 @@ export function CompactRouletteWheel() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <span className="text-gray-600 text-lg">×</span>
+                  <span className="text-gray-600 text-lg cursor-pointer">×</span>
                 </motion.button>
                 
                 <motion.div
@@ -481,31 +513,96 @@ export function CompactRouletteWheel() {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 >
-                  <div className="w-full aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
+                  {/* Aura Effect for Legendary/Mythic */}
+                  {(lastResult.type === "legendary" || lastResult.type === "mythic") && (
+                    <motion.div
+                      className="absolute inset-0 rounded-xl overflow-hidden"
+                      initial={{ opacity: 0, scale: 1.1 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4, duration: 0.6 }}
+                    >
+                      <div className="absolute inset-0 rounded-xl">
+                        <Balatro
+                          isRotate={true}
+                          mouseInteraction={false}
+                          pixelFilter={300}
+                          color1={lastResult.type === "mythic" ? "#a855f7" : "#f59e0b"}
+                          color2={lastResult.type === "mythic" ? "#06b6d4" : "#dc2626"}
+                          color3={lastResult.type === "mythic" ? "#1e1b4b" : "#7c2d12"}
+                          contrast={6.0}
+                          lighting={0.8}
+                          spinAmount={0.5}
+                          spinSpeed={2.5}
+                          spinRotation={-2.0}
+                        />
+                      </div>
+                      <div className={`absolute inset-0 rounded-xl ${
+                        lastResult.type === "mythic" 
+                          ? "bg-gradient-to-br from-purple-200/40 via-cyan-200/30 to-purple-200/40"
+                          : "bg-gradient-to-br from-orange-200/50 via-red-200/40 to-orange-200/50"
+                      }`} />
+                    </motion.div>
+                  )}
+
+                  {/* Main Image Container */}
+                  <div className={`relative w-full aspect-square bg-gray-50 rounded-xl overflow-hidden ${
+                    lastResult.type === "mythic"
+                      ? "border-2 border-purple-400/60 shadow-lg shadow-purple-300/50"
+                      : lastResult.type === "legendary"
+                      ? "border-2 border-yellow-300/60 shadow-lg shadow-yellow-200/50"
+                      : lastResult.type === "rare"
+                      ? "border-2 border-purple-300/60 shadow-lg shadow-purple-200/50"
+                      : "border border-gray-200"
+                  }`}>
                     <Image
                       src={lastResult.src}
                       alt={lastResult.name}
                       width={200}
                       height={200}
-                      className="object-cover w-full h-full"
+                      className="object-cover w-full h-full relative z-10"
                     />
+                    
+                    {/* Shimmer Effect for High Rarity */}
+                    {(lastResult.type === "legendary" || lastResult.type === "mythic") && (
+                      <motion.div
+                        className="absolute inset-0 z-20 pointer-events-none"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "100%" }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity,
+                          repeatType: "loop",
+                          ease: "linear"
+                        }}
+                      >
+                        <div className={`h-full w-1/3 ${
+                          lastResult.type === "mythic"
+                            ? "bg-gradient-to-r from-transparent via-purple-200/60 to-transparent"
+                            : "bg-gradient-to-r from-transparent via-orange-200/50 to-transparent"
+                        } transform rotate-12`} />
+                      </motion.div>
+                    )}
                   </div>
                   
-                  {/* Simple Rarity Badge */}
+                  {/* Enhanced Rarity Badge */}
                   <motion.div
-                    className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-xs font-medium ${
+                    className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-xs font-medium backdrop-blur-sm ${
                       lastResult.type === "mythic"
-                        ? "bg-yellow-500 text-white"
+                        ? "bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-lg shadow-purple-500/50"
                         : lastResult.type === "legendary"
-                        ? "bg-yellow-100 text-yellow-800"
+                        ? "bg-gradient-to-r from-orange-400 to-red-500 text-white shadow-lg shadow-orange-500/50"
                         : lastResult.type === "rare"
-                        ? "bg-purple-100 text-purple-800"
+                        ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/50"
                         : "bg-blue-100 text-blue-800"
                     }`}
                     initial={{ scale: 0, x: 10, y: -10 }}
                     animate={{ scale: 1, x: 0, y: 0 }}
                     transition={{ delay: 0.3, type: "spring" }}
+                    whileHover={{ scale: 1.1 }}
                   >
+                    {lastResult.type === "mythic" && "✨ "}
+                    {lastResult.type === "legendary" && "👑 "}
+                    {lastResult.type === "rare" && "💎 "}
                     {lastResult.rarity}
                   </motion.div>
                 </motion.div>
@@ -536,7 +633,7 @@ export function CompactRouletteWheel() {
                 >
                   <motion.button
                     onClick={handleSpin}
-                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-4 rounded-xl font-medium transition-colors shadow-lg"
+                    className="cursor-pointer w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-4 rounded-xl font-medium transition-colors shadow-lg"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -545,7 +642,7 @@ export function CompactRouletteWheel() {
                   
                   <motion.button
                     onClick={() => setLastResult(null)}
-                    className="w-full bg-white/80 hover:bg-white/90 text-gray-700 py-3 px-4 rounded-xl font-medium transition-colors backdrop-blur-sm border border-gray-200"
+                    className="cursor-pointer w-full bg-white/80 hover:bg-white/90 text-gray-700 py-3 px-4 rounded-xl font-medium transition-colors backdrop-blur-sm border border-gray-200"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
