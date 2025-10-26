@@ -19,8 +19,8 @@ export const useExecuteSpin = () => {
   const [status, setStatus] = useState<SpinStatus>(SpinStatus.IDLE);
   const [error, setError] = useState<string | null>(null);
   
-  const { writeContract: approve, data: approveHash } = useWriteContract();
-  const { writeContract: spinWheel, data: spinHash } = useWriteContract();
+  const { writeContract: approve, data: approveHash, reset: resetApprove } = useWriteContract();
+  const { writeContract: spinWheel, data: spinHash, reset: resetSpinWheel } = useWriteContract();
   
   const { isLoading: isApproveLoading } = useWaitForTransactionReceipt({
     hash: approveHash,
@@ -52,6 +52,9 @@ export const useExecuteSpin = () => {
       setStatus(SpinStatus.SPINNING);
       setError(null);
       
+      // Reset the spinWheel hash before making new call
+      resetSpinWheel();
+      
       spinWheel({
         address: CONTRACTS.KittyLette,
         abi: KITTY_LETTE_ABI,
@@ -64,12 +67,17 @@ export const useExecuteSpin = () => {
   };
 
   const executeSpin = async (amount: bigint) => {
+    // Reset both hashes when starting a new spin
+    resetApprove();
+    resetSpinWheel();
     await executeApprove(amount);
   };
 
   const reset = () => {
     setStatus(SpinStatus.IDLE);
     setError(null);
+    resetApprove();
+    resetSpinWheel();
   };
 
   return {

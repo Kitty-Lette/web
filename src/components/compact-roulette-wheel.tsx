@@ -52,6 +52,7 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
     null
   );
   const [completedSpinHash, setCompletedSpinHash] = useState<string | null>(null);
+  const [isWaitingForSpinHash, setIsWaitingForSpinHash] = useState(false);
   const hoverIntensity = 0.4;
   const { price, loading: priceLoading } = useGetPrice();
   const { balance, loading: balanceLoading } = useGetBalance();
@@ -84,27 +85,37 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
 
   useEffect(() => {
     if (approveHash && !isApproveLoading && spinStatus === SpinStatus.APPROVING) {
+      console.log('Approve completed, starting spinWheel...');
+      setIsWaitingForSpinHash(true); // Set flag that we're waiting for spinWheel hash
       executeSpinWheel();
     }
   }, [approveHash, isApproveLoading, spinStatus, executeSpinWheel]);
 
   useEffect(() => {
-    if (spinHash && !isSpinLoading && spinStatus === SpinStatus.SPINNING) {
-      setIsSpinning(true);
-      setLastResult(null);
+    if (spinHash && !isSpinLoading && spinStatus === SpinStatus.SPINNING && isWaitingForSpinHash) {
+      console.log('SpinWheel completed! Hash:', spinHash);
+      console.log('Approve hash was:', approveHash);
+      console.log('Are they the same?', spinHash === approveHash);
       
-      // Set the completed spin hash immediately when we get a confirmed spinHash
-      setCompletedSpinHash(spinHash);
-      
-      setTimeout(() => {
-        // eslint-disable-next-line react-hooks/immutability
-        const selectedNft = getRandomNFTByWeight();
-        setLastResult(selectedNft);
-        setIsSpinning(false);
-        resetSpin();
-      }, 6000);
+      // Only use the hash if it's different from approve hash
+      if (spinHash !== approveHash) {
+        setIsSpinning(true);
+        setLastResult(null);
+        setCompletedSpinHash(spinHash);
+        setIsWaitingForSpinHash(false);
+        
+        setTimeout(() => {
+          // eslint-disable-next-line react-hooks/immutability
+          const selectedNft = getRandomNFTByWeight();
+          setLastResult(selectedNft);
+          setIsSpinning(false);
+          resetSpin();
+        }, 6000);
+      } else {
+        console.warn('spinHash is same as approveHash, not using it');
+      }
     }
-  }, [spinHash, isSpinLoading, spinStatus, resetSpin]);
+  }, [spinHash, isSpinLoading, spinStatus, isWaitingForSpinHash, approveHash, resetSpin]);
 
   useEffect(() => {
     if (spinError) {
@@ -165,10 +176,18 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
     
     try {
       setCompletedSpinHash(null); // Clear previous hash when starting new spin
+      setIsWaitingForSpinHash(false); // Reset the waiting flag
       await executeSpin(price);
     } catch (error) {
       console.error("Failed to execute spin:", error);
     }
+  };
+
+  const handleSpinAgain = async () => {
+    // Close the modal first
+    setLastResult(null);
+    // Then start a new spin
+    await handleSpin();
   };
 
   return (
@@ -979,23 +998,40 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <motion.button
-                    onClick={handleSpin}
-                    className="cursor-pointer w-full bg-gray-900 hover:bg-gray-800 text-white py-2 px-3 rounded-lg font-medium transition-colors shadow-lg"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Spin Again
-                  </motion.button>
+                  {/* Show spinning state when spinning or processing */}
+                  {(isSpinning || 
+                    spinStatus === SpinStatus.APPROVING || 
+                    spinStatus === SpinStatus.SPINNING ||
+                    isApproveLoading ||
+                    isSpinLoading) ? (
+                    <motion.div
+                      className="w-full bg-gray-600 text-white py-2 px-3 rounded-lg font-medium text-center opacity-50"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 0.5 }}
+                    >
+                      Spinning...
+                    </motion.div>
+                  ) : (
+                    <>
+                      <motion.button
+                        onClick={handleSpinAgain}
+                        className="cursor-pointer w-full bg-gray-900 hover:bg-gray-800 text-white py-2 px-3 rounded-lg font-medium transition-colors shadow-lg"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        Spin Again
+                      </motion.button>
 
-                  <motion.button
-                    onClick={() => setLastResult(null)}
-                    className="cursor-pointer w-full bg-white/80 hover:bg-white/90 text-gray-700 py-2 px-3 rounded-lg font-medium transition-colors backdrop-blur-sm border border-gray-200"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Close
-                  </motion.button>
+                      <motion.button
+                        onClick={() => setLastResult(null)}
+                        className="cursor-pointer w-full bg-white/80 hover:bg-white/90 text-gray-700 py-2 px-3 rounded-lg font-medium transition-colors backdrop-blur-sm border border-gray-200"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        Close
+                      </motion.button>
+                    </>
+                  )}
                 </motion.div>
               </div>
             </motion.div>
