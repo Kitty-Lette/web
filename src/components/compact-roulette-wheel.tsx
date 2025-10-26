@@ -45,7 +45,7 @@ export function CompactRouletteWheel() {
 
   const formatPrice = (priceInWei: bigint) => {
     const priceInEther = Number(priceInWei) / 10**18;
-    return priceInEther.toFixed(2);
+    return priceInEther % 1 === 0 ? priceInEther.toString() : priceInEther.toFixed(2);
   };
 
   const testingMode = "mythic" as "normal" | "common" | "rare" | "legendary" | "mythic" | "equal";
@@ -455,7 +455,23 @@ export function CompactRouletteWheel() {
             disabled={isSpinning || priceLoading}
             className="cursor-pointer bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 hover:from-slate-700 hover:via-slate-800 hover:to-slate-700 text-white px-11 py-5 rounded-2xl font-bold text-sm tracking-wider transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 border-slate-600"
           >
-            {isSpinning ? "Spinning..." : priceLoading ? "Loading..." : `Spin the Wheel (${price ? formatPrice(price) : "0.00"} FROTH)`}
+            {isSpinning ? (
+              "Spinning..."
+            ) : priceLoading ? (
+              "Loading..."
+            ) : (
+              <div className="flex items-center space-x-2">
+                <span>Spin the Wheel ({price ? formatPrice(price) : "0.00"}</span>
+                <Image
+                  src="/Images/Logo/froth-token-logo.png"
+                  alt="FROTH"
+                  width={16}
+                  height={16}
+                  className="object-contain"
+                />
+                <span>FROTH)</span>
+              </div>
+            )}
           </Button>
         </div>
       </div>
