@@ -6,13 +6,14 @@ import Balatro from "@/src/components/Balatro";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
 import { useGetFlowBalance } from "@/src/hooks/useGetFlowBalance";
-import { useAccount } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import { formatEther } from "viem";
 
 export default function Home() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { balance: flowBalance, loading: flowBalanceLoading } = useGetFlowBalance();
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
+  const { disconnect } = useDisconnect();
 
   const formatBalance = (balance: bigint) => {
     const formatted = formatEther(balance);
@@ -51,50 +52,88 @@ export default function Home() {
         <div className="absolute top-4 right-4 z-20 flex items-center space-x-2">
           {/* Flow Balance */}
           {isConnected && (
-            <div className="flex items-center space-x-1.5 bg-white/90 backdrop-blur-sm rounded-full px-3 py-2 border border-gray-200/60 shadow-sm h-10">
+            <button className="cursor-pointer relative overflow-hidden flex items-center space-x-1.5 rounded-full px-3 py-2 shadow-sm h-10 border border-gray-300/30 transition-all duration-300 hover:scale-105 bg-gradient-to-r from-emerald-500 to-green-600">
+              <div className="absolute inset-0 opacity-60">
+                <Balatro
+                  isRotate={true}
+                  mouseInteraction={false}
+                  pixelFilter={200}
+                  color1="#10B981"
+                  color2="#059669"
+                  color3="#047857"
+                  spinSpeed={0.8}
+                  contrast={4.0}
+                  lighting={0.6}
+                  spinAmount={0.5}
+                />
+              </div>
               <Image
                 src="/Images/Logo/flow-logo.png"
                 alt="FLOW"
                 width={16}
                 height={16}
-                className="object-contain"
+                className="object-contain relative z-10"
               />
               {flowBalanceLoading ? (
-                <div className="animate-pulse">
-                  <div className="h-3 bg-gray-200 rounded w-10"></div>
+                <div className="animate-pulse relative z-10">
+                  <div className="h-3 bg-white/30 rounded w-10"></div>
                 </div>
               ) : (
-                <span className="text-sm font-medium text-gray-800">
+                <span className="text-sm font-medium text-white relative z-10">
                   {flowBalance ? formatBalance(flowBalance) : "0"}
                 </span>
               )}
-            </div>
+            </button>
           )}
           
-          {/* Connect Button */}
-          <ConnectButton.Custom>
-            {({ openConnectModal, connectModalOpen }) => (
-              <button
-                onClick={openConnectModal}
-                className="cursor-pointer relative overflow-hidden rounded-full h-10 px-4 font-medium text-white shadow-sm border border-gray-300/30 transition-all duration-300 hover:scale-105"
-              >
-                <div className="absolute inset-0 opacity-80">
-                  <Balatro
-                    isRotate={true}
-                    mouseInteraction={false}
-                    pixelFilter={400}
-                    color1="#4F46E5"
-                    color2="#3B82F6"
-                    color3="#1E40AF"
-                    spinSpeed={1.0}
-                    contrast={2.5}
-                    lighting={0.4}
-                  />
-                </div>
-                <span className="relative z-10">Connect Wallet</span>
-              </button>
-            )}
-          </ConnectButton.Custom>
+          {/* Connect/Disconnect Button */}
+          {!isConnected ? (
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button
+                  onClick={openConnectModal}
+                  className="cursor-pointer relative overflow-hidden rounded-full h-10 px-4 font-medium text-white shadow-sm border border-gray-300/30 transition-all duration-300 hover:scale-105"
+                >
+                  <div className="absolute inset-0 opacity-80">
+                    <Balatro
+                      isRotate={true}
+                      mouseInteraction={false}
+                      pixelFilter={400}
+                      color1="#4F46E5"
+                      color2="#3B82F6"
+                      color3="#1E40AF"
+                      spinSpeed={1.0}
+                      contrast={2.5}
+                      lighting={0.4}
+                    />
+                  </div>
+                  <span className="relative z-10">Connect Wallet</span>
+                </button>
+              )}
+            </ConnectButton.Custom>
+          ) : (
+            <button
+              onClick={() => disconnect()}
+              className="cursor-pointer relative overflow-hidden rounded-full h-10 px-4 font-medium text-white shadow-sm border border-gray-300/30 transition-all duration-300 hover:scale-105"
+            >
+              <div className="absolute inset-0 opacity-80">
+                <Balatro
+                  isRotate={true}
+                  mouseInteraction={false}
+                  pixelFilter={400}
+                  color1="#EF4444"
+                  color2="#DC2626"
+                  color3="#B91C1C"
+                  spinSpeed={1.2}
+                  contrast={2.5}
+                  lighting={0.4}
+                />
+              </div>
+              <span className="relative z-10">
+                Disconnect wallet
+              </span>
+            </button>
+          )}
         </div>
       )}
 
