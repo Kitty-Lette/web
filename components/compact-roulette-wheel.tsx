@@ -81,7 +81,7 @@ export function CompactRouletteWheel() {
             <FuzzyText baseIntensity={0.04} hoverIntensity={hoverIntensity}>
               Pirate Treasure Vault
             </FuzzyText>
-            <p className="text-base font-medium text-gray-700 leading-relaxed mt-2">
+            <p className="text-base font-bold text-white leading-relaxed mt-2">
               Spin the wheel of fortune and claim your legendary treasure!
             </p>
           </div>
