@@ -7,6 +7,8 @@ import FuzzyText from "./FuzzyText";
 import { motion, AnimatePresence } from "framer-motion";
 import Balatro from "./Balatro";
 import { useGetPrice } from "../hooks/useGetPrice";
+import { useGetBalance } from "../hooks/useGetBalance";
+import { formatEther } from "viem";
 
 const nftImages = [
   {
@@ -42,6 +44,13 @@ export function CompactRouletteWheel() {
   );
   const hoverIntensity = 0.4;
   const { price, loading: priceLoading } = useGetPrice();
+  const { balance, loading: balanceLoading } = useGetBalance();
+
+  const formatBalance = (balance: bigint) => {
+    const formatted = formatEther(balance);
+    const num = parseFloat(formatted);
+    return num % 1 === 0 ? num.toString() : num.toFixed(2);
+  };
 
   const formatPrice = (priceInWei: bigint) => {
     const priceInEther = Number(priceInWei) / 10**18;
@@ -447,6 +456,29 @@ export function CompactRouletteWheel() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Your Balance - Minimalist */}
+        <div className="relative z-10 mb-4">
+          <div className="flex items-center justify-center space-x-2 bg-white/20 backdrop-blur-sm rounded-xl p-2 border border-white/30">
+            <Image
+              src="/Images/Logo/froth-token-logo.png"
+              alt="FROTH"
+              width={16}
+              height={16}
+              className="object-contain"
+            />
+            <span className="text-white text-sm font-medium">Your Balance:</span>
+            {balanceLoading ? (
+              <div className="animate-pulse">
+                <div className="h-4 bg-white/30 rounded w-12"></div>
+              </div>
+            ) : (
+              <span className="text-white font-bold text-sm">
+                {balance ? formatBalance(balance) : "0"} FROTH
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="relative z-10">

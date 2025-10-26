@@ -41,36 +41,12 @@ export default function Home() {
         />
       </div>
 
-      {/* Wallet Connection and Balance - Top Right Corner */}
-      <div className="absolute top-1 right-4 z-20 flex items-center space-x-3">
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-2 border border-gray-200 shadow-sm">
-          <div className="flex items-center space-x-2">
-            <Image
-              src="/Images/Logo/froth-token-logo.png"
-              alt="FROTH Token Logo"
-              width={20}
-              height={20}
-              className="object-contain"
-            />
-            <div className="flex items-center space-x-1">
-              {balanceLoading ? (
-                <div className="animate-pulse">
-                  <div className="h-3 bg-gray-200 rounded w-8"></div>
-                </div>
-              ) : (
-                <span className="text-sm font-bold text-gray-900">
-                  {balance ? formatBalance(balance) : "0.00"}
-                </span>
-              )}
-              <span className="text-xs text-gray-600">FROTH</span>
-            </div>
-          </div>
-        </div>
-
+      {/* Wallet Connection - Top Right Corner */}
+      <div className="absolute top-4 right-4 z-20">
         <ConnectButton />
       </div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 space-y-6">
         <div
           className="w-full max-w-6xl rounded-2xl shadow-lg border border-gray-200 overflow-hidden relative z-10"
           style={{
