@@ -3,17 +3,9 @@
 import Image from "next/image";
 import { CompactRouletteWheel } from "@/src/components/compact-roulette-wheel";
 import Balatro from "@/src/components/Balatro";
-import { useGetBalance } from "@/src/hooks/useGetBalance";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { formatEther } from "viem";
 
 export default function Home() {
-  const { balance, loading: balanceLoading } = useGetBalance();
-
-  const formatBalance = (balance: bigint) => {
-    const formatted = formatEther(balance);
-    return parseFloat(formatted).toFixed(2);
-  };
   return (
     <div className="min-h-screen w-full relative">
       {/* Aurora Dream Soft Harmony */}

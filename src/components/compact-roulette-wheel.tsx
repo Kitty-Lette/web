@@ -8,7 +8,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import Balatro from "./Balatro";
 import { useGetPrice } from "../hooks/useGetPrice";
 import { useGetBalance } from "../hooks/useGetBalance";
+import { useExecuteSpin, SpinStatus } from "../hooks/useExecuteSpin";
 import { formatEther } from "viem";
+import { useEffect } from "react";
 
 const nftImages = [
   {
@@ -45,6 +47,17 @@ export function CompactRouletteWheel() {
   const hoverIntensity = 0.4;
   const { price, loading: priceLoading } = useGetPrice();
   const { balance, loading: balanceLoading } = useGetBalance();
+  const {
+    status: spinStatus,
+    error: spinError,
+    isApproveLoading,
+    isSpinLoading,
+    executeSpin,
+    executeSpinWheel,
+    approveHash,
+    spinHash,
+    reset: resetSpin,
+  } = useExecuteSpin();
 
   const formatBalance = (balance: bigint) => {
     const formatted = formatEther(balance);
@@ -53,12 +66,47 @@ export function CompactRouletteWheel() {
   };
 
   const formatPrice = (priceInWei: bigint) => {
-    const priceInEther = Number(priceInWei) / 10**18;
-    return priceInEther % 1 === 0 ? priceInEther.toString() : priceInEther.toFixed(2);
+    const priceInEther = Number(priceInWei) / 10 ** 18;
+    return priceInEther % 1 === 0
+      ? priceInEther.toString()
+      : priceInEther.toFixed(2);
   };
 
-  const testingMode = "mythic" as "normal" | "common" | "rare" | "legendary" | "mythic" | "equal";
-  
+  useEffect(() => {
+    if (approveHash && !isApproveLoading && spinStatus === SpinStatus.APPROVING) {
+      executeSpinWheel();
+    }
+  }, [approveHash, isApproveLoading, spinStatus, executeSpinWheel]);
+
+  useEffect(() => {
+    if (spinHash && !isSpinLoading && spinStatus === SpinStatus.SPINNING) {
+      setIsSpinning(true);
+      setLastResult(null);
+      
+      setTimeout(() => {
+        const selectedNft = getRandomNFTByWeight();
+        setLastResult(selectedNft);
+        setIsSpinning(false);
+        resetSpin();
+      }, 6000);
+    }
+  }, [spinHash, isSpinLoading, spinStatus, resetSpin]);
+
+  useEffect(() => {
+    if (spinError) {
+      console.error("Spin error:", spinError);
+      setIsSpinning(false);
+    }
+  }, [spinError]);
+
+  const testingMode = "mythic" as
+    | "normal"
+    | "common"
+    | "rare"
+    | "legendary"
+    | "mythic"
+    | "equal";
+
   const getProbabilityWeights = () => {
     switch (testingMode) {
       case "common":
@@ -82,28 +130,26 @@ export function CompactRouletteWheel() {
     const weights = getProbabilityWeights();
     const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
     let random = Math.random() * totalWeight;
-    
+
     for (let i = 0; i < weights.length; i++) {
       if (random <= weights[i]) {
         return nftImages[i];
       }
       random -= weights[i];
     }
-    
+
     // Fallback to last item
     return nftImages[nftImages.length - 1];
   };
 
-  const handleSpin = () => {
-    setIsSpinning(true);
-    setLastResult(null);
-
-    // Simulate spin duration with train animation
-    setTimeout(() => {
-      const selectedNft = getRandomNFTByWeight();
-      setLastResult(selectedNft);
-      setIsSpinning(false);
-    }, 6000);
+  const handleSpin = async () => {
+    if (!price) return;
+    
+    try {
+      await executeSpin(price);
+    } catch (error) {
+      console.error("Failed to execute spin:", error);
+    }
   };
 
   return (
@@ -115,7 +161,7 @@ export function CompactRouletteWheel() {
             mouseInteraction={true}
             pixelFilter={700}
             color1="#1e3a8a"
-            color2="#0f172a" 
+            color2="#0f172a"
             color3="#fbbf24"
             contrast={2.8}
             lighting={0.3}
@@ -134,7 +180,7 @@ export function CompactRouletteWheel() {
             <p className="text-base font-bold text-white leading-relaxed mt-2">
               Spin the wheel of fortune and claim your legendary treasure!
             </p>
-            
+
             {/* Testing Mode Indicator
             {testingMode !== "normal" && (
               <div className="mt-3 px-3 py-2 bg-yellow-500/90 text-black rounded-lg text-sm font-semibold">
@@ -461,14 +507,9 @@ export function CompactRouletteWheel() {
         {/* Your Balance - Minimalist */}
         <div className="relative z-10 mb-4">
           <div className="flex items-center justify-center space-x-2 bg-white/20 backdrop-blur-sm rounded-xl p-2 border border-white/30">
-            <Image
-              src="/Images/Logo/froth-token-logo.png"
-              alt="FROTH"
-              width={16}
-              height={16}
-              className="object-contain"
-            />
-            <span className="text-white text-sm font-medium">Your Balance:</span>
+            <span className="text-white text-sm font-medium">
+              Your Balance:
+            </span>
             {balanceLoading ? (
               <div className="animate-pulse">
                 <div className="h-4 bg-white/30 rounded w-12"></div>
@@ -478,22 +519,42 @@ export function CompactRouletteWheel() {
                 {balance ? formatBalance(balance) : "0"} FROTH
               </span>
             )}
+            <Image
+              src="/Images/Logo/froth-token-logo.png"
+              alt="FROTH"
+              width={16}
+              height={16}
+              className="object-contain"
+            />
           </div>
         </div>
 
         <div className="relative z-10">
           <Button
             onClick={handleSpin}
-            disabled={isSpinning || priceLoading}
+            disabled={
+              isSpinning || 
+              priceLoading || 
+              spinStatus === SpinStatus.APPROVING || 
+              spinStatus === SpinStatus.SPINNING ||
+              isApproveLoading ||
+              isSpinLoading
+            }
             className="cursor-pointer bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 hover:from-slate-700 hover:via-slate-800 hover:to-slate-700 text-white px-11 py-5 rounded-2xl font-bold text-sm tracking-wider transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 border-slate-600"
           >
-            {isSpinning ? (
+            {spinStatus === SpinStatus.APPROVING || isApproveLoading ? (
+              "Approving..."
+            ) : spinStatus === SpinStatus.SPINNING || isSpinLoading ? (
+              "Processing..."
+            ) : isSpinning ? (
               "Spinning..."
             ) : priceLoading ? (
               "Loading..."
             ) : (
               <div className="flex items-center space-x-2">
-                <span>Spin the Wheel ({price ? formatPrice(price) : "0.00"}</span>
+                <span>
+                  Spin the Wheel ({price ? formatPrice(price) : "0.00"}
+                </span>
                 <Image
                   src="/Images/Logo/froth-token-logo.png"
                   alt="FROTH"
@@ -523,11 +584,11 @@ export function CompactRouletteWheel() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
-              transition={{ 
+              transition={{
                 type: "spring",
                 damping: 20,
                 stiffness: 300,
-                duration: 0.4
+                duration: 0.4,
               }}
             >
               {/* Balatro Background for Popup - Dynamic based on rarity */}
@@ -535,9 +596,14 @@ export function CompactRouletteWheel() {
                 <Balatro
                   isRotate={true}
                   mouseInteraction={false}
-                  pixelFilter={lastResult.type === "mythic" || lastResult.type === "legendary" ? 400 : 600}
+                  pixelFilter={
+                    lastResult.type === "mythic" ||
+                    lastResult.type === "legendary"
+                      ? 400
+                      : 600
+                  }
                   color1={
-                    lastResult.type === "mythic" 
+                    lastResult.type === "mythic"
                       ? "#a855f7" // Purple
                       : lastResult.type === "legendary"
                       ? "#f59e0b" // Amber
@@ -546,7 +612,7 @@ export function CompactRouletteWheel() {
                       : "#3b82f6" // Blue
                   }
                   color2={
-                    lastResult.type === "mythic" 
+                    lastResult.type === "mythic"
                       ? "#06b6d4" // Cyan
                       : lastResult.type === "legendary"
                       ? "#dc2626" // Red
@@ -555,7 +621,7 @@ export function CompactRouletteWheel() {
                       : "#1e3a8a" // Deep blue
                   }
                   color3={
-                    lastResult.type === "mythic" 
+                    lastResult.type === "mythic"
                       ? "#1e1b4b" // Deep purple
                       : lastResult.type === "legendary"
                       ? "#7c2d12" // Dark brown
@@ -563,24 +629,51 @@ export function CompactRouletteWheel() {
                       ? "#312e81" // Dark indigo
                       : "#0f172a" // Dark slate
                   }
-                  contrast={lastResult.type === "mythic" || lastResult.type === "legendary" ? 4.5 : 3.0}
-                  lighting={lastResult.type === "mythic" || lastResult.type === "legendary" ? 0.6 : 0.4}
-                  spinAmount={lastResult.type === "mythic" || lastResult.type === "legendary" ? 0.35 : 0.2}
-                  spinSpeed={lastResult.type === "mythic" || lastResult.type === "legendary" ? 1.8 : 0.8}
-                  spinRotation={lastResult.type === "mythic" || lastResult.type === "legendary" ? -1.5 : -0.8}
+                  contrast={
+                    lastResult.type === "mythic" ||
+                    lastResult.type === "legendary"
+                      ? 4.5
+                      : 3.0
+                  }
+                  lighting={
+                    lastResult.type === "mythic" ||
+                    lastResult.type === "legendary"
+                      ? 0.6
+                      : 0.4
+                  }
+                  spinAmount={
+                    lastResult.type === "mythic" ||
+                    lastResult.type === "legendary"
+                      ? 0.35
+                      : 0.2
+                  }
+                  spinSpeed={
+                    lastResult.type === "mythic" ||
+                    lastResult.type === "legendary"
+                      ? 1.8
+                      : 0.8
+                  }
+                  spinRotation={
+                    lastResult.type === "mythic" ||
+                    lastResult.type === "legendary"
+                      ? -1.5
+                      : -0.8
+                  }
                 />
               </div>
 
               {/* Overlay for readability - Adjusted based on rarity */}
-              <div className={`absolute inset-0 z-5 ${
-                lastResult.type === "mythic" 
-                  ? "bg-gradient-to-b from-purple-50/70 via-cyan-50/60 to-purple-50/70"
-                  : lastResult.type === "legendary"
-                  ? "bg-gradient-to-b from-orange-50/75 via-red-50/65 to-orange-50/75"
-                  : lastResult.type === "rare"
-                  ? "bg-gradient-to-b from-purple-50/80 via-purple-50/70 to-purple-50/80"
-                  : "bg-gradient-to-b from-white/85 via-white/75 to-white/85"
-              }`} />
+              <div
+                className={`absolute inset-0 z-5 ${
+                  lastResult.type === "mythic"
+                    ? "bg-gradient-to-b from-purple-50/70 via-cyan-50/60 to-purple-50/70"
+                    : lastResult.type === "legendary"
+                    ? "bg-gradient-to-b from-orange-50/75 via-red-50/65 to-orange-50/75"
+                    : lastResult.type === "rare"
+                    ? "bg-gradient-to-b from-purple-50/80 via-purple-50/70 to-purple-50/80"
+                    : "bg-gradient-to-b from-white/85 via-white/75 to-white/85"
+                }`}
+              />
               {/* Header */}
               <div className="relative z-10 p-6 pb-4 border-b border-white/20">
                 <motion.button
@@ -589,9 +682,11 @@ export function CompactRouletteWheel() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <span className="text-gray-600 text-lg cursor-pointer">×</span>
+                  <span className="text-gray-600 text-lg cursor-pointer">
+                    ×
+                  </span>
                 </motion.button>
-                
+
                 <motion.div
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -600,9 +695,7 @@ export function CompactRouletteWheel() {
                   <h3 className="text-lg font-semibold text-gray-800 mb-1">
                     Congratulations!
                   </h3>
-                  <p className="text-sm text-gray-600">
-                    You won a treasure
-                  </p>
+                  <p className="text-sm text-gray-600">You won a treasure</p>
                 </motion.div>
               </div>
 
@@ -626,13 +719,16 @@ export function CompactRouletteWheel() {
                         isRotate={true}
                         mouseInteraction={false}
                         pixelFilter={
-                          lastResult.type === "mythic" ? 250 
-                          : lastResult.type === "legendary" ? 300
-                          : lastResult.type === "rare" ? 400
-                          : 500
+                          lastResult.type === "mythic"
+                            ? 250
+                            : lastResult.type === "legendary"
+                            ? 300
+                            : lastResult.type === "rare"
+                            ? 400
+                            : 500
                         }
                         color1={
-                          lastResult.type === "mythic" 
+                          lastResult.type === "mythic"
                             ? "#a855f7" // Purple
                             : lastResult.type === "legendary"
                             ? "#f59e0b" // Amber
@@ -641,7 +737,7 @@ export function CompactRouletteWheel() {
                             : "#0ea5e9" // Sky blue
                         }
                         color2={
-                          lastResult.type === "mythic" 
+                          lastResult.type === "mythic"
                             ? "#06b6d4" // Cyan
                             : lastResult.type === "legendary"
                             ? "#dc2626" // Red
@@ -650,7 +746,7 @@ export function CompactRouletteWheel() {
                             : "#0284c7" // Blue
                         }
                         color3={
-                          lastResult.type === "mythic" 
+                          lastResult.type === "mythic"
                             ? "#1e1b4b" // Deep purple
                             : lastResult.type === "legendary"
                             ? "#7c2d12" // Dark brown
@@ -659,58 +755,77 @@ export function CompactRouletteWheel() {
                             : "#0c4a6e" // Dark blue
                         }
                         contrast={
-                          lastResult.type === "mythic" ? 6.0
-                          : lastResult.type === "legendary" ? 5.5
-                          : lastResult.type === "rare" ? 4.0
-                          : 3.0
+                          lastResult.type === "mythic"
+                            ? 6.0
+                            : lastResult.type === "legendary"
+                            ? 5.5
+                            : lastResult.type === "rare"
+                            ? 4.0
+                            : 3.0
                         }
                         lighting={
-                          lastResult.type === "mythic" ? 0.8
-                          : lastResult.type === "legendary" ? 0.7
-                          : lastResult.type === "rare" ? 0.5
-                          : 0.3
+                          lastResult.type === "mythic"
+                            ? 0.8
+                            : lastResult.type === "legendary"
+                            ? 0.7
+                            : lastResult.type === "rare"
+                            ? 0.5
+                            : 0.3
                         }
                         spinAmount={
-                          lastResult.type === "mythic" ? 0.5
-                          : lastResult.type === "legendary" ? 0.4
-                          : lastResult.type === "rare" ? 0.25
-                          : 0.15
+                          lastResult.type === "mythic"
+                            ? 0.5
+                            : lastResult.type === "legendary"
+                            ? 0.4
+                            : lastResult.type === "rare"
+                            ? 0.25
+                            : 0.15
                         }
                         spinSpeed={
-                          lastResult.type === "mythic" ? 2.5
-                          : lastResult.type === "legendary" ? 2.0
-                          : lastResult.type === "rare" ? 1.2
-                          : 0.6
+                          lastResult.type === "mythic"
+                            ? 2.5
+                            : lastResult.type === "legendary"
+                            ? 2.0
+                            : lastResult.type === "rare"
+                            ? 1.2
+                            : 0.6
                         }
                         spinRotation={
-                          lastResult.type === "mythic" ? -2.0
-                          : lastResult.type === "legendary" ? -1.5
-                          : lastResult.type === "rare" ? -1.0
-                          : -0.5
+                          lastResult.type === "mythic"
+                            ? -2.0
+                            : lastResult.type === "legendary"
+                            ? -1.5
+                            : lastResult.type === "rare"
+                            ? -1.0
+                            : -0.5
                         }
                       />
                     </div>
-                    <div className={`absolute inset-0 rounded-xl ${
-                      lastResult.type === "mythic" 
-                        ? "bg-gradient-to-br from-purple-200/40 via-cyan-200/30 to-purple-200/40"
-                        : lastResult.type === "legendary"
-                        ? "bg-gradient-to-br from-orange-200/50 via-red-200/40 to-orange-200/50"
-                        : lastResult.type === "rare"
-                        ? "bg-gradient-to-br from-violet-200/45 via-indigo-200/35 to-violet-200/45"
-                        : "bg-gradient-to-br from-sky-200/40 via-blue-200/30 to-sky-200/40"
-                    }`} />
+                    <div
+                      className={`absolute inset-0 rounded-xl ${
+                        lastResult.type === "mythic"
+                          ? "bg-gradient-to-br from-purple-200/40 via-cyan-200/30 to-purple-200/40"
+                          : lastResult.type === "legendary"
+                          ? "bg-gradient-to-br from-orange-200/50 via-red-200/40 to-orange-200/50"
+                          : lastResult.type === "rare"
+                          ? "bg-gradient-to-br from-violet-200/45 via-indigo-200/35 to-violet-200/45"
+                          : "bg-gradient-to-br from-sky-200/40 via-blue-200/30 to-sky-200/40"
+                      }`}
+                    />
                   </motion.div>
 
                   {/* Main Image Container */}
-                  <div className={`relative w-full aspect-square bg-gray-50 rounded-xl overflow-hidden ${
-                    lastResult.type === "mythic"
-                      ? "border-2 border-purple-400/60 shadow-lg shadow-purple-300/50"
-                      : lastResult.type === "legendary"
-                      ? "border-2 border-yellow-300/60 shadow-lg shadow-yellow-200/50"
-                      : lastResult.type === "rare"
-                      ? "border-2 border-violet-300/60 shadow-lg shadow-violet-200/50"
-                      : "border-2 border-sky-300/60 shadow-md shadow-sky-200/40"
-                  }`}>
+                  <div
+                    className={`relative w-full aspect-square bg-gray-50 rounded-xl overflow-hidden ${
+                      lastResult.type === "mythic"
+                        ? "border-2 border-purple-400/60 shadow-lg shadow-purple-300/50"
+                        : lastResult.type === "legendary"
+                        ? "border-2 border-yellow-300/60 shadow-lg shadow-yellow-200/50"
+                        : lastResult.type === "rare"
+                        ? "border-2 border-violet-300/60 shadow-lg shadow-violet-200/50"
+                        : "border-2 border-sky-300/60 shadow-md shadow-sky-200/40"
+                    }`}
+                  >
                     <Image
                       src={lastResult.src}
                       alt={lastResult.name}
@@ -718,34 +833,40 @@ export function CompactRouletteWheel() {
                       height={200}
                       className="object-cover w-full h-full relative z-10"
                     />
-                    
+
                     {/* Shimmer Effect for All Rarities */}
                     <motion.div
                       className="absolute inset-0 z-20 pointer-events-none"
                       initial={{ x: "-100%" }}
                       animate={{ x: "100%" }}
-                      transition={{ 
-                        duration: lastResult.type === "mythic" ? 1.5
-                          : lastResult.type === "legendary" ? 2
-                          : lastResult.type === "rare" ? 2.5
-                          : 3,
+                      transition={{
+                        duration:
+                          lastResult.type === "mythic"
+                            ? 1.5
+                            : lastResult.type === "legendary"
+                            ? 2
+                            : lastResult.type === "rare"
+                            ? 2.5
+                            : 3,
                         repeat: Infinity,
                         repeatType: "loop",
-                        ease: "linear"
+                        ease: "linear",
                       }}
                     >
-                      <div className={`h-full w-1/3 transform rotate-12 ${
-                        lastResult.type === "mythic"
-                          ? "bg-gradient-to-r from-transparent via-purple-200/60 to-transparent"
-                          : lastResult.type === "legendary"
-                          ? "bg-gradient-to-r from-transparent via-orange-200/50 to-transparent"
-                          : lastResult.type === "rare"
-                          ? "bg-gradient-to-r from-transparent via-violet-200/45 to-transparent"
-                          : "bg-gradient-to-r from-transparent via-sky-200/35 to-transparent"
-                      }`} />
+                      <div
+                        className={`h-full w-1/3 transform rotate-12 ${
+                          lastResult.type === "mythic"
+                            ? "bg-gradient-to-r from-transparent via-purple-200/60 to-transparent"
+                            : lastResult.type === "legendary"
+                            ? "bg-gradient-to-r from-transparent via-orange-200/50 to-transparent"
+                            : lastResult.type === "rare"
+                            ? "bg-gradient-to-r from-transparent via-violet-200/45 to-transparent"
+                            : "bg-gradient-to-r from-transparent via-sky-200/35 to-transparent"
+                        }`}
+                      />
                     </motion.div>
                   </div>
-                  
+
                   {/* Enhanced Rarity Badge */}
                   <motion.div
                     className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-xs font-medium backdrop-blur-sm ${
@@ -802,7 +923,7 @@ export function CompactRouletteWheel() {
                   >
                     Spin Again
                   </motion.button>
-                  
+
                   <motion.button
                     onClick={() => setLastResult(null)}
                     className="cursor-pointer w-full bg-white/80 hover:bg-white/90 text-gray-700 py-3 px-4 rounded-xl font-medium transition-colors backdrop-blur-sm border border-gray-200"
