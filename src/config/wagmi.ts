@@ -1,6 +1,3 @@
-import { connectorsForWallets } from '@rainbow-me/rainbowkit';
-import { metaMaskWallet, walletConnectWallet, injectedWallet } from '@rainbow-me/rainbowkit/wallets';
-import { createConfig, http } from 'wagmi';
 import { defineChain } from 'viem';
 
 export const flowTestnet = defineChain({
@@ -25,28 +22,34 @@ export const flowTestnet = defineChain({
   testnet: true,
 });
 
-const connectors = connectorsForWallets(
-  [
+export const createWagmiConfig = async () => {
+  const { createConfig, http } = await import('wagmi');
+  const { connectorsForWallets } = await import('@rainbow-me/rainbowkit');
+  const { metaMaskWallet, walletConnectWallet, injectedWallet } = await import('@rainbow-me/rainbowkit/wallets');
+  
+  const connectors = connectorsForWallets(
+    [
+      {
+        groupName: 'Recommended',
+        wallets: [
+          metaMaskWallet,
+          walletConnectWallet,
+          injectedWallet,
+        ],
+      },
+    ],
     {
-      groupName: 'Recommended',
-      wallets: [
-        metaMaskWallet,
-        walletConnectWallet,
-        injectedWallet,
-      ],
-    },
-  ],
-  {
-    appName: 'Kitty Lette',
-    projectId: '6721e82ac454e916acc25c075f9263b4',
-  }
-);
+      appName: 'Kitty Lette',
+      projectId: '6721e82ac454e916acc25c075f9263b4',
+    }
+  );
 
-export const config = createConfig({
-  connectors,
-  chains: [flowTestnet],
-  transports: {
-    [flowTestnet.id]: http(),
-  },
-  ssr: true,
-});
+  return createConfig({
+    connectors,
+    chains: [flowTestnet],
+    transports: {
+      [flowTestnet.id]: http(),
+    },
+    ssr: true,
+  });
+};

@@ -622,7 +622,7 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
             transition={{ duration: 0.2 }}
           >
             <motion.div
-              className="relative bg-white rounded-2xl shadow-xl max-w-sm w-full mx-auto overflow-hidden"
+              className="relative bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl max-w-sm w-full mx-auto overflow-hidden border border-white/20"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
