@@ -229,11 +229,50 @@
   0% {
     transform: translateX(0%);
   }
-  33.33% {
-    transform: translateX(-33.33%);
+  6.25% {
+    transform: translateX(-6.25%);
   }
-  66.66% {
-    transform: translateX(-66.66%);
+  12.5% {
+    transform: translateX(-12.5%);
+  }
+  18.75% {
+    transform: translateX(-18.75%);
+  }
+  25% {
+    transform: translateX(-25%);
+  }
+  31.25% {
+    transform: translateX(-31.25%);
+  }
+  37.5% {
+    transform: translateX(-37.5%);
+  }
+  43.75% {
+    transform: translateX(-43.75%);
+  }
+  50% {
+    transform: translateX(-50%);
+  }
+  56.25% {
+    transform: translateX(-56.25%);
+  }
+  62.5% {
+    transform: translateX(-62.5%);
+  }
+  68.75% {
+    transform: translateX(-68.75%);
+  }
+  75% {
+    transform: translateX(-75%);
+  }
+  81.25% {
+    transform: translateX(-81.25%);
+  }
+  87.5% {
+    transform: translateX(-87.5%);
+  }
+  93.75% {
+    transform: translateX(-93.75%);
   }
   100% {
     transform: translateX(-100%);

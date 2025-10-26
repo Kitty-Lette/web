@@ -8,25 +8,25 @@ const nftImages = [
   {
     src: "/Images/NFT/nft-common-kitty-lette.png",
     type: "common",
-    name: "Common Sailor Cat",
+    name: "Common Sailor Cat 🐾",
     rarity: "Common",
   },
   {
     src: "/Images/NFT/nft-rare-kitty-lette.png",
     type: "rare",
-    name: "Rare Pirate Cat",
+    name: "Rare Pirate Cat 🏴‍☠️",
     rarity: "Rare",
   },
   {
     src: "/Images/NFT/nft-legendary-kitty-lette.png",
     type: "legendary",
-    name: "Legendary Captain Cat",
+    name: "Legendary Captain Cat 👑",
     rarity: "Legendary",
   },
   {
     src: "/Images/NFT/nft-mythic-kitty-lette.png",
     type: "mythic",
-    name: "Mythic Treasure Master",
+    name: "Mythic Treasure Master Cat 🔮",
     rarity: "Mythic",
   },
 ];
@@ -94,12 +94,13 @@ export function CompactRouletteWheel() {
 
                   {/* Continuous Train of Full-Size NFT Images */}
                   <div className="absolute inset-0">
-                    <div className="flex animate-[trainPassThrough_4s_linear_infinite] h-full">
-                      {/* Create enough images to fill the space continuously */}
-                      {[...nftImages, ...nftImages].map((nft, index) => (
+                    <div className="flex animate-[trainPassThrough_6s_linear_infinite] h-full" style={{ width: '400%' }}>
+                      {/* Create sequence of all 4 unique NFT images */}
+                      {nftImages.map((nft, index) => (
                         <div
-                          key={index}
-                          className="shrink-0 w-full h-full relative"
+                          key={`unique-${index}`}
+                          className="shrink-0 h-full relative"
+                          style={{ width: '25%' }}
                         >
                           <Image
                             src={nft.src}
@@ -112,7 +113,103 @@ export function CompactRouletteWheel() {
                           <div
                             className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
                               nft.type === "mythic"
-                                ? " from-yellow-500 to-orange-500 text-white"
+                                ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
+                                : nft.type === "legendary"
+                                ? "bg-yellow-100/90 text-yellow-800"
+                                : nft.type === "rare"
+                                ? "bg-purple-100/90 text-purple-800"
+                                : "bg-blue-100/90 text-blue-800"
+                            }`}
+                          >
+                            {nft.type === "mythic"
+                              ? "✨ " + nft.rarity
+                              : nft.rarity}
+                          </div>
+                        </div>
+                      ))}
+                      {/* Repeat the sequence for seamless loop */}
+                      {nftImages.map((nft, index) => (
+                        <div
+                          key={`repeat-${index}`}
+                          className="shrink-0 h-full relative"
+                          style={{ width: '25%' }}
+                        >
+                          <Image
+                            src={nft.src}
+                            alt={nft.name}
+                            width={300}
+                            height={300}
+                            className="object-cover w-full h-full"
+                          />
+                          {/* Rarity Badge */}
+                          <div
+                            className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
+                              nft.type === "mythic"
+                                ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
+                                : nft.type === "legendary"
+                                ? "bg-yellow-100/90 text-yellow-800"
+                                : nft.type === "rare"
+                                ? "bg-purple-100/90 text-purple-800"
+                                : "bg-blue-100/90 text-blue-800"
+                            }`}
+                          >
+                            {nft.type === "mythic"
+                              ? "✨ " + nft.rarity
+                              : nft.rarity}
+                          </div>
+                        </div>
+                      ))}
+                      {/* Third repetition for extra smoothness */}
+                      {nftImages.map((nft, index) => (
+                        <div
+                          key={`extra-${index}`}
+                          className="shrink-0 h-full relative"
+                          style={{ width: '25%' }}
+                        >
+                          <Image
+                            src={nft.src}
+                            alt={nft.name}
+                            width={300}
+                            height={300}
+                            className="object-cover w-full h-full"
+                          />
+                          {/* Rarity Badge */}
+                          <div
+                            className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
+                              nft.type === "mythic"
+                                ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
+                                : nft.type === "legendary"
+                                ? "bg-yellow-100/90 text-yellow-800"
+                                : nft.type === "rare"
+                                ? "bg-purple-100/90 text-purple-800"
+                                : "bg-blue-100/90 text-blue-800"
+                            }`}
+                          >
+                            {nft.type === "mythic"
+                              ? "✨ " + nft.rarity
+                              : nft.rarity}
+                          </div>
+                        </div>
+                      ))}
+                      {/* Fourth repetition for complete seamless experience */}
+                      {nftImages.map((nft, index) => (
+                        <div
+                          key={`final-${index}`}
+                          className="shrink-0 h-full relative"
+                          style={{ width: '25%' }}
+                        >
+                          <Image
+                            src={nft.src}
+                            alt={nft.name}
+                            width={300}
+                            height={300}
+                            className="object-cover w-full h-full"
+                          />
+                          {/* Rarity Badge */}
+                          <div
+                            className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
+                              nft.type === "mythic"
+                                ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
                                 : nft.type === "legendary"
                                 ? "bg-yellow-100/90 text-yellow-800"
                                 : nft.type === "rare"
@@ -333,13 +430,13 @@ export function CompactRouletteWheel() {
               <div className="flex space-x-3">
                 <button
                   onClick={() => setLastResult(null)}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold transition-colors"
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold transition-colors cursor-pointer"
                 >
                   Close
                 </button>
                 <button
                   onClick={handleSpin}
-                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-xl font-semibold transition-colors"
+                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-xl font-semibold transition-colors cursor-pointer"
                 >
                   Spin Again
                 </button>
