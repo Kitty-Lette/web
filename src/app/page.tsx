@@ -53,7 +53,7 @@ export default function Home() {
                    `,
               }}
             >
-              <div className="max-w-md mx-auto w-full space-y-6 md:space-y-8">
+              <div className="max-w-sm mx-auto w-full space-y-6 md:space-y-8">
                 <div className="text-center mb-4 md:mb-8">
                   <div className="flex items-center justify-center space-x-2 mb-4">
                     <Image

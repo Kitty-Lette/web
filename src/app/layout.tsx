@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kitty Lette - NFT Roulette Platform",
+  title: "Kitty Lette",
   description: "Spin the wheel and collect unique NFT treasures with Kitty Lette - where every spin creates a rare collectible adventure!",
 };
 

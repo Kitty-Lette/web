@@ -24,7 +24,7 @@ const nftImages = [
     rarity: "Legendary",
   },
   {
-    src: "/Images/NFT/nft-mythic-kitty-lette.png",
+    src: "/Images/NFT/nft-mythic.png",
     type: "mythic",
     name: "Mythic Treasure Master Cat 🔮",
     rarity: "Mythic",
