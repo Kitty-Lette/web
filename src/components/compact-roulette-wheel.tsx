@@ -51,6 +51,7 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
   const [lastResult, setLastResult] = useState<(typeof nftImages)[0] | null>(
     null
   );
+  const [completedSpinHash, setCompletedSpinHash] = useState<string | null>(null);
   const hoverIntensity = 0.4;
   const { price, loading: priceLoading } = useGetPrice();
   const { balance, loading: balanceLoading } = useGetBalance();
@@ -91,6 +92,7 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
     if (spinHash && !isSpinLoading && spinStatus === SpinStatus.SPINNING) {
       setIsSpinning(true);
       setLastResult(null);
+      setCompletedSpinHash(spinHash); // Save the spin hash for display in modal
       
       setTimeout(() => {
         // eslint-disable-next-line react-hooks/immutability
@@ -160,6 +162,7 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
     if (!price) return;
     
     try {
+      setCompletedSpinHash(null); // Clear previous hash when starting new spin
       await executeSpin(price);
     } catch (error) {
       console.error("Failed to execute spin:", error);
@@ -168,7 +171,7 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
 
   return (
     <div className="text-center space-y-5">
-      <div className="relative rounded-2xl p-5 border border-gray-200 shadow-sm overflow-hidden">
+      <div className="relative rounded-2xl p-9 overflow-hidden">
         <div className="absolute inset-0 z-0 rounded-3xl overflow-hidden">
           <Balatro
             isRotate={true}
@@ -950,10 +953,10 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
                   </div>
 
                   {/* Transaction Hash - Minimalist */}
-                  {spinHash && (
+                  {completedSpinHash && (
                     <div className="mt-4 text-center">
                       <a
-                        href={`https://evm-testnet.flowscan.io/tx/${spinHash}`}
+                        href={`https://evm-testnet.flowscan.io/tx/${completedSpinHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center space-x-2 text-xs text-blue-600 hover:text-blue-800 transition-colors group"
