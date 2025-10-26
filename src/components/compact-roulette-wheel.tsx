@@ -39,7 +39,11 @@ const nftImages = [
   },
 ];
 
-export function CompactRouletteWheel() {
+interface CompactRouletteWheelProps {
+  onPopupChange?: (isOpen: boolean) => void;
+}
+
+export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProps = {}) {
   const [isSpinning, setIsSpinning] = useState(false);
   const [lastResult, setLastResult] = useState<(typeof nftImages)[0] | null>(
     null
@@ -99,6 +103,10 @@ export function CompactRouletteWheel() {
       setIsSpinning(false);
     }
   }, [spinError]);
+
+  useEffect(() => {
+    onPopupChange?.(!!lastResult && !isSpinning);
+  }, [lastResult, isSpinning, onPopupChange]);
 
   const testingMode = "mythic" as
     | "normal"

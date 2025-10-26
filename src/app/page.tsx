@@ -4,8 +4,10 @@ import Image from "next/image";
 import { CompactRouletteWheel } from "@/src/components/compact-roulette-wheel";
 import Balatro from "@/src/components/Balatro";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useState } from "react";
 
 export default function Home() {
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   return (
     <div className="h-screen w-full relative overflow-hidden">
       {/* Aurora Dream Soft Harmony */}
@@ -34,9 +36,11 @@ export default function Home() {
       </div>
 
       {/* Wallet Connection - Top Right Corner */}
-      <div className="absolute top-4 right-4 z-20">
-        <ConnectButton />
-      </div>
+      {!isPopupOpen && (
+        <div className="absolute top-4 right-4 z-20">
+          <ConnectButton />
+        </div>
+      )}
 
       <div className="relative z-10 h-full flex flex-col items-center justify-center p-4 space-y-6 overflow-y-auto">
         <div
@@ -80,7 +84,7 @@ export default function Home() {
                   </p>
                 </div>
 
-                <CompactRouletteWheel />
+                <CompactRouletteWheel onPopupChange={setIsPopupOpen} />
               </div>
             </div>
 
