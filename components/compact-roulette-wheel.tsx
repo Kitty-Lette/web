@@ -418,7 +418,7 @@ export function CompactRouletteWheel() {
             transition={{ duration: 0.2 }}
           >
             <motion.div
-              className="bg-white rounded-2xl shadow-xl max-w-sm w-full mx-auto"
+              className="relative bg-white rounded-2xl shadow-xl max-w-sm w-full mx-auto overflow-hidden"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
@@ -429,15 +429,34 @@ export function CompactRouletteWheel() {
                 duration: 0.4
               }}
             >
+              {/* Balatro Background for Popup */}
+              <div className="absolute inset-0 z-0">
+                <Balatro
+                  isRotate={true}
+                  mouseInteraction={false}
+                  pixelFilter={600}
+                  color1="#1e3a8a"
+                  color2="#0f172a" 
+                  color3="#fbbf24"
+                  contrast={3.0}
+                  lighting={0.4}
+                  spinAmount={0.2}
+                  spinSpeed={0.8}
+                  spinRotation={-0.8}
+                />
+              </div>
+
+              {/* Overlay for readability */}
+              <div className="absolute inset-0 z-5 bg-gradient-to-b from-white/85 via-white/75 to-white/85" />
               {/* Header */}
-              <div className="relative p-6 pb-4 border-b border-gray-100">
+              <div className="relative z-10 p-6 pb-4 border-b border-white/20">
                 <motion.button
                   onClick={() => setLastResult(null)}
-                  className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                  className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <span className="text-gray-400 text-lg">×</span>
+                  <span className="text-gray-600 text-lg">×</span>
                 </motion.button>
                 
                 <motion.div
@@ -445,30 +464,30 @@ export function CompactRouletteWheel() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.1 }}
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-1">
                     Congratulations!
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-600">
                     You won a treasure
                   </p>
                 </motion.div>
               </div>
 
               {/* NFT Display */}
-              <div className="p-6">
+              <div className="relative z-10 p-6">
                 <motion.div
                   className="relative mb-4"
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 >
-                  <div className="w-full aspect-square bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="w-full aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
                     <Image
                       src={lastResult.src}
                       alt={lastResult.name}
                       width={200}
                       height={200}
-                      className="object-contain w-full h-full rounded-xl"
+                      className="object-cover w-full h-full"
                     />
                   </div>
                   
@@ -498,10 +517,10 @@ export function CompactRouletteWheel() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <h4 className="font-semibold text-gray-900 mb-2 text-base">
+                  <h4 className="font-semibold text-gray-800 mb-2 text-base">
                     {lastResult.name}
                   </h4>
-                  <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                  <div className="flex items-center justify-center space-x-4 text-xs text-gray-600">
                     <span>NFT</span>
                     <span>•</span>
                     <span>Kitty Lette</span>
@@ -517,7 +536,7 @@ export function CompactRouletteWheel() {
                 >
                   <motion.button
                     onClick={handleSpin}
-                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-4 rounded-xl font-medium transition-colors"
+                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-4 rounded-xl font-medium transition-colors shadow-lg"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -526,7 +545,7 @@ export function CompactRouletteWheel() {
                   
                   <motion.button
                     onClick={() => setLastResult(null)}
-                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-medium transition-colors"
+                    className="w-full bg-white/80 hover:bg-white/90 text-gray-700 py-3 px-4 rounded-xl font-medium transition-colors backdrop-blur-sm border border-gray-200"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
