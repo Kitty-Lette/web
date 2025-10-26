@@ -1,8 +1,19 @@
+"use client";
+
 import Image from "next/image";
-import { CompactRouletteWheel } from "@/components/compact-roulette-wheel";
-import Balatro from "@/components/Balatro";
+import { CompactRouletteWheel } from "@/src/components/compact-roulette-wheel";
+import Balatro from "@/src/components/Balatro";
+import { useGetBalance } from "@/src/hooks/useGetBalance";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { formatEther } from "viem";
 
 export default function Home() {
+  const { balance, loading: balanceLoading } = useGetBalance();
+
+  const formatBalance = (balance: bigint) => {
+    const formatted = formatEther(balance);
+    return parseFloat(formatted).toFixed(2);
+  };
   return (
     <div className="min-h-screen w-full relative">
       {/* Aurora Dream Soft Harmony */}
@@ -28,6 +39,35 @@ export default function Home() {
           contrast={2.8}
           lighting={0.6}
         />
+      </div>
+
+      {/* Wallet Connection and Balance - Top Right Corner */}
+      <div className="absolute top-1 right-4 z-20 flex items-center space-x-3">
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-2 border border-gray-200 shadow-sm">
+          <div className="flex items-center space-x-2">
+            <Image
+              src="/Images/Logo/froth-token-logo.png"
+              alt="FROTH Token Logo"
+              width={20}
+              height={20}
+              className="object-contain"
+            />
+            <div className="flex items-center space-x-1">
+              {balanceLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-3 bg-gray-200 rounded w-8"></div>
+                </div>
+              ) : (
+                <span className="text-sm font-bold text-gray-900">
+                  {balance ? formatBalance(balance) : "0.00"}
+                </span>
+              )}
+              <span className="text-xs text-gray-600">FROTH</span>
+            </div>
+          </div>
+        </div>
+
+        <ConnectButton />
       </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">

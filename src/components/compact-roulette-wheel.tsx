@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/src/components/ui/button";
 import Image from "next/image";
 import FuzzyText from "./FuzzyText";
 import { motion, AnimatePresence } from "framer-motion";
 import Balatro from "./Balatro";
+import { useGetPrice } from "../hooks/useGetPrice";
 
 const nftImages = [
   {
@@ -40,8 +41,14 @@ export function CompactRouletteWheel() {
     null
   );
   const hoverIntensity = 0.4;
+  const { price, loading: priceLoading } = useGetPrice();
 
-  const testingMode = "legendary" as "normal" | "common" | "rare" | "legendary" | "mythic" | "equal";
+  const formatPrice = (priceInWei: bigint) => {
+    const priceInEther = Number(priceInWei) / 10**18;
+    return priceInEther.toFixed(2);
+  };
+
+  const testingMode = "mythic" as "normal" | "common" | "rare" | "legendary" | "mythic" | "equal";
   
   const getProbabilityWeights = () => {
     switch (testingMode) {
@@ -92,9 +99,7 @@ export function CompactRouletteWheel() {
 
   return (
     <div className="text-center space-y-8">
-      {/* NFT Collection Grid */}
       <div className="relative rounded-3xl p-8 border border-gray-200 shadow-sm overflow-hidden">
-        {/* Balatro WebGL Background */}
         <div className="absolute inset-0 z-0 rounded-3xl overflow-hidden">
           <Balatro
             isRotate={true}
@@ -447,10 +452,10 @@ export function CompactRouletteWheel() {
         <div className="relative z-10">
           <Button
             onClick={handleSpin}
-            disabled={isSpinning}
-            className="cursor-pointer bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 hover:from-slate-700 hover:via-slate-800 hover:to-slate-700 text-white px-16 py-5 rounded-2xl font-bold text-lg tracking-wider transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 border-slate-600"
+            disabled={isSpinning || priceLoading}
+            className="cursor-pointer bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 hover:from-slate-700 hover:via-slate-800 hover:to-slate-700 text-white px-11 py-5 rounded-2xl font-bold text-sm tracking-wider transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 border-slate-600"
           >
-            {isSpinning ? "Spwhenning..." : "Spin the Wheel"}
+            {isSpinning ? "Spinning..." : priceLoading ? "Loading..." : `Spin the Wheel (${price ? formatPrice(price) : "0.00"} FROTH)`}
           </Button>
         </div>
       </div>
