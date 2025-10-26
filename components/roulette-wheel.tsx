@@ -54,7 +54,7 @@ export function RouletteWheel() {
         size="lg"
         className="px-12 py-6 text-xl font-bold transform hover:scale-105 transition-transform cursor-pointer"
       >
-        {isSpinning ? "SPINNING..." : "SPIN THE WHEEL"}
+        {isSpinning ? "Spinning..." : "Spin"}
       </Button>
 
       {lastResult && !isSpinning && (
