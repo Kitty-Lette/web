@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import FuzzyText from "./FuzzyText";
 import { motion, AnimatePresence } from "framer-motion";
+import Balatro from "./Balatro";
 
 const nftImages = [
   {
@@ -57,13 +58,22 @@ export function CompactRouletteWheel() {
     <div className="text-center space-y-8">
       {/* NFT Collection Grid */}
       <div className="relative rounded-3xl p-8 border border-gray-200 shadow-sm overflow-hidden">
-        {/* Blue + White Sky Gradient - Top Background */}
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            background: `linear-gradient(225deg, #E3F2FD 0%, #BBDEFB 20%, #FFFFFF 40%, #F0F8FF 60%, #E1F5FE 80%, #B3E5FC 100%)`,
-          }}
-        />
+        {/* Balatro WebGL Background */}
+        <div className="absolute inset-0 z-0 rounded-3xl overflow-hidden">
+          <Balatro
+            isRotate={true}
+            mouseInteraction={true}
+            pixelFilter={700}
+            color1="#1e3a8a"
+            color2="#0f172a" 
+            color3="#fbbf24"
+            contrast={2.8}
+            lighting={0.3}
+            spinAmount={0.15}
+            spinSpeed={1.5}
+            spinRotation={-1.2}
+          />
+        </div>
 
         {/* Content Layer */}
         <div className="relative z-10">
