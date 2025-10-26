@@ -5,9 +5,20 @@ import { CompactRouletteWheel } from "@/src/components/compact-roulette-wheel";
 import Balatro from "@/src/components/Balatro";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
+import { useGetFlowBalance } from "@/src/hooks/useGetFlowBalance";
+import { useAccount } from "wagmi";
+import { formatEther } from "viem";
 
 export default function Home() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const { balance: flowBalance, loading: flowBalanceLoading } = useGetFlowBalance();
+  const { isConnected } = useAccount();
+
+  const formatBalance = (balance: bigint) => {
+    const formatted = formatEther(balance);
+    const num = parseFloat(formatted);
+    return num % 1 === 0 ? num.toString() : num.toFixed(2);
+  };
   return (
     <div className="h-screen w-full relative overflow-hidden">
       {/* Aurora Dream Soft Harmony */}
@@ -35,10 +46,33 @@ export default function Home() {
         />
       </div>
 
-      {/* Wallet Connection - Top Right Corner */}
+      {/* Wallet Connection & Flow Balance - Top Right Corner */}
       {!isPopupOpen && (
-        <div className="absolute top-4 right-4 z-20">
-          <ConnectButton />
+        <div className="absolute top-4 right-4 z-20 flex items-center space-x-2">
+          {/* Flow Balance */}
+          {isConnected && (
+            <div className="flex items-center space-x-1.5 bg-white/90 backdrop-blur-sm rounded-full px-3 py-2 border border-gray-200/60 shadow-sm h-10">
+              <Image
+                src="/Images/Logo/flow-logo.png"
+                alt="FLOW"
+                width={16}
+                height={16}
+                className="object-contain"
+              />
+              {flowBalanceLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-3 bg-gray-200 rounded w-10"></div>
+                </div>
+              ) : (
+                <span className="text-sm font-medium text-gray-800">
+                  {flowBalance ? formatBalance(flowBalance) : "0"}
+                </span>
+              )}
+            </div>
+          )}
+          
+          {/* Connect Button */}
+          <ConnectButton showBalance={false} />
         </div>
       )}
 

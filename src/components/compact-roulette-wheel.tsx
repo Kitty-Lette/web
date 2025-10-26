@@ -8,9 +8,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Balatro from "./Balatro";
 import { useGetPrice } from "../hooks/useGetPrice";
 import { useGetBalance } from "../hooks/useGetBalance";
+import { useGetFlowBalance } from "../hooks/useGetFlowBalance";
 import { useExecuteSpin, SpinStatus } from "../hooks/useExecuteSpin";
 import { formatEther } from "viem";
 import { useEffect } from "react";
+import { useAccount } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const nftImages = [
   {
@@ -51,6 +54,8 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
   const hoverIntensity = 0.4;
   const { price, loading: priceLoading } = useGetPrice();
   const { balance, loading: balanceLoading } = useGetBalance();
+  const { balance: flowBalance, loading: flowBalanceLoading } = useGetFlowBalance();
+  const { isConnected } = useAccount();
   const {
     status: spinStatus,
     error: spinError,
@@ -513,68 +518,96 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
           )}
         </div>
 
-        {/* Your Balance - Minimalist */}
-        <div className="relative z-10 mb-4">
-          <div className="flex items-center justify-center space-x-2 bg-white/20 backdrop-blur-sm rounded-xl p-2 border border-white/30">
-            <span className="text-white text-sm font-medium">
-              Your Balance:
-            </span>
-            {balanceLoading ? (
-              <div className="animate-pulse">
-                <div className="h-4 bg-white/30 rounded w-12"></div>
-              </div>
-            ) : (
-              <span className="text-white font-bold text-sm">
-                {balance ? formatBalance(balance) : "0"} FROTH
-              </span>
-            )}
-            <Image
-              src="/Images/Logo/froth-token-logo.png"
-              alt="FROTH"
-              width={16}
-              height={16}
-              className="object-contain"
-            />
+        {/* FROTH Balance - Minimalist */}
+        {isConnected && (
+          <div className="relative z-10 mb-4">
+            <div className="flex items-center justify-center space-x-2 bg-white/15 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
+              <Image
+                src="/Images/Logo/froth-token-logo.png"
+                alt="FROTH"
+                width={16}
+                height={16}
+                className="object-contain"
+              />
+              <span className="text-white/80 text-xs font-medium">FROTH:</span>
+              {balanceLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-4 bg-white/30 rounded w-12"></div>
+                </div>
+              ) : (
+                <span className="text-white font-semibold text-sm">
+                  {balance ? formatBalance(balance) : "0"}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="relative z-10">
-          <Button
-            onClick={handleSpin}
-            disabled={
-              isSpinning || 
-              priceLoading || 
-              spinStatus === SpinStatus.APPROVING || 
-              spinStatus === SpinStatus.SPINNING ||
-              isApproveLoading ||
-              isSpinLoading
-            }
-            className="cursor-pointer bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 hover:from-slate-700 hover:via-slate-800 hover:to-slate-700 text-white px-11 py-5 rounded-2xl font-bold text-sm tracking-wider transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 border-slate-600"
-          >
-            {spinStatus === SpinStatus.APPROVING || isApproveLoading ? (
-              "Approving..."
-            ) : spinStatus === SpinStatus.SPINNING || isSpinLoading ? (
-              "Processing..."
-            ) : isSpinning ? (
-              "Spinning..."
-            ) : priceLoading ? (
-              "Loading..."
-            ) : (
-              <div className="flex items-center space-x-2">
-                <span>
-                  Spin the Wheel ({price ? formatPrice(price) : "0.00"}
-                </span>
-                <Image
-                  src="/Images/Logo/froth-token-logo.png"
-                  alt="FROTH"
-                  width={16}
-                  height={16}
-                  className="object-contain"
-                />
-                <span>FROTH)</span>
-              </div>
-            )}
-          </Button>
+          {!isConnected ? (
+            <div className="flex justify-center">
+              <ConnectButton.Custom>
+                {({ openConnectModal }) => (
+                  <Button 
+                    onClick={openConnectModal}
+                    className="cursor-pointer relative overflow-hidden bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 border border-gray-600/30"
+                  >
+                    <div className="absolute inset-0 opacity-30">
+                      <Balatro
+                        isRotate={true}
+                        mouseInteraction={false}
+                        pixelFilter={300}
+                        color1="#2a2a2a"
+                        color2="#1a1a1a"
+                        color3="#000000"
+                        spinSpeed={0.8}
+                        contrast={1.5}
+                        lighting={0.2}
+                      />
+                    </div>
+                    <span className="cursor-pointer relative z-10">Connect your wallet first</span>
+                  </Button>
+                )}
+              </ConnectButton.Custom>
+            </div>
+          ) : (
+            <Button
+              onClick={handleSpin}
+              disabled={
+                isSpinning || 
+                priceLoading || 
+                spinStatus === SpinStatus.APPROVING || 
+                spinStatus === SpinStatus.SPINNING ||
+                isApproveLoading ||
+                isSpinLoading
+              }
+              className="cursor-pointer bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 hover:from-slate-700 hover:via-slate-800 hover:to-slate-700 text-white px-11 py-5 rounded-2xl font-bold text-sm tracking-wider transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-2 border-slate-600"
+            >
+              {spinStatus === SpinStatus.APPROVING || isApproveLoading ? (
+                "Approving..."
+              ) : spinStatus === SpinStatus.SPINNING || isSpinLoading ? (
+                "Processing..."
+              ) : isSpinning ? (
+                "Spinning..."
+              ) : priceLoading ? (
+                "Loading..."
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <span>
+                    Spin the Wheel ({price ? formatPrice(price) : "0.00"}
+                  </span>
+                  <Image
+                    src="/Images/Logo/froth-token-logo.png"
+                    alt="FROTH"
+                    width={16}
+                    height={16}
+                    className="object-contain"
+                  />
+                  <span>FROTH)</span>
+                </div>
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
