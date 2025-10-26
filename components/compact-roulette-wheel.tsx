@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import FuzzyText from "./FuzzyText";
 
 const nftImages = [
   {
@@ -36,6 +37,7 @@ export function CompactRouletteWheel() {
   const [lastResult, setLastResult] = useState<(typeof nftImages)[0] | null>(
     null
   );
+  const hoverIntensity = 0.4;
 
   const handleSpin = () => {
     setIsSpinning(true);
@@ -65,10 +67,10 @@ export function CompactRouletteWheel() {
         {/* Content Layer */}
         <div className="relative z-10">
           <div className="mb-6">
-            <h3 className="text-2xl font-bold text-blue-600 mb-3 tracking-wide">
+            <FuzzyText baseIntensity={0.04} hoverIntensity={hoverIntensity}>
               Pirate Treasure Vault
-            </h3>
-            <p className="text-base font-medium text-gray-700 leading-relaxed">
+            </FuzzyText>
+            <p className="text-base font-medium text-gray-700 leading-relaxed mt-2">
               Spin the wheel of fortune and claim your legendary treasure!
             </p>
           </div>
@@ -94,13 +96,16 @@ export function CompactRouletteWheel() {
 
                   {/* Continuous Train of Full-Size NFT Images */}
                   <div className="absolute inset-0">
-                    <div className="flex animate-[trainPassThrough_6s_linear_infinite] h-full" style={{ width: '400%' }}>
+                    <div
+                      className="flex animate-[trainPassThrough_6s_linear_infinite] h-full"
+                      style={{ width: "400%" }}
+                    >
                       {/* Create sequence of all 4 unique NFT images */}
                       {nftImages.map((nft, index) => (
                         <div
                           key={`unique-${index}`}
                           className="shrink-0 h-full relative"
-                          style={{ width: '25%' }}
+                          style={{ width: "25%" }}
                         >
                           <Image
                             src={nft.src}
@@ -132,7 +137,7 @@ export function CompactRouletteWheel() {
                         <div
                           key={`repeat-${index}`}
                           className="shrink-0 h-full relative"
-                          style={{ width: '25%' }}
+                          style={{ width: "25%" }}
                         >
                           <Image
                             src={nft.src}
@@ -164,7 +169,7 @@ export function CompactRouletteWheel() {
                         <div
                           key={`extra-${index}`}
                           className="shrink-0 h-full relative"
-                          style={{ width: '25%' }}
+                          style={{ width: "25%" }}
                         >
                           <Image
                             src={nft.src}
@@ -196,7 +201,7 @@ export function CompactRouletteWheel() {
                         <div
                           key={`final-${index}`}
                           className="shrink-0 h-full relative"
-                          style={{ width: '25%' }}
+                          style={{ width: "25%" }}
                         >
                           <Image
                             src={nft.src}
@@ -292,12 +297,42 @@ export function CompactRouletteWheel() {
                   />
                   {/* White Sparkle Effects */}
                   <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-4 left-4 text-white text-lg animate-sparkle" style={{animationDelay: '0s'}}>✦</div>
-                    <div className="absolute top-8 right-6 text-white text-sm animate-sparkle" style={{animationDelay: '0.3s'}}>✧</div>
-                    <div className="absolute top-16 left-8 text-white text-xs animate-sparkle" style={{animationDelay: '0.6s'}}>✦</div>
-                    <div className="absolute bottom-8 right-4 text-white text-lg animate-sparkle" style={{animationDelay: '0.9s'}}>✧</div>
-                    <div className="absolute bottom-16 left-6 text-white text-sm animate-sparkle" style={{animationDelay: '1.2s'}}>✦</div>
-                    <div className="absolute top-12 right-12 text-white text-xs animate-sparkle" style={{animationDelay: '1.5s'}}>✧</div>
+                    <div
+                      className="absolute top-4 left-4 text-white text-lg animate-sparkle"
+                      style={{ animationDelay: "0s" }}
+                    >
+                      ✦
+                    </div>
+                    <div
+                      className="absolute top-8 right-6 text-white text-sm animate-sparkle"
+                      style={{ animationDelay: "0.3s" }}
+                    >
+                      ✧
+                    </div>
+                    <div
+                      className="absolute top-16 left-8 text-white text-xs animate-sparkle"
+                      style={{ animationDelay: "0.6s" }}
+                    >
+                      ✦
+                    </div>
+                    <div
+                      className="absolute bottom-8 right-4 text-white text-lg animate-sparkle"
+                      style={{ animationDelay: "0.9s" }}
+                    >
+                      ✧
+                    </div>
+                    <div
+                      className="absolute bottom-16 left-6 text-white text-sm animate-sparkle"
+                      style={{ animationDelay: "1.2s" }}
+                    >
+                      ✦
+                    </div>
+                    <div
+                      className="absolute top-12 right-12 text-white text-xs animate-sparkle"
+                      style={{ animationDelay: "1.5s" }}
+                    >
+                      ✧
+                    </div>
                   </div>
                   {/* Mythic Rarity Badge for FOMO */}
                   <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-yellow-500 to-orange-500 text-white">
