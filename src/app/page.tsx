@@ -7,7 +7,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Home() {
   return (
-    <div className="min-h-screen w-full relative">
+    <div className="h-screen w-full relative overflow-hidden">
       {/* Aurora Dream Soft Harmony */}
       <div
         className="absolute inset-0 z-0"
@@ -38,7 +38,7 @@ export default function Home() {
         <ConnectButton />
       </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 space-y-6">
+      <div className="relative z-10 h-full flex flex-col items-center justify-center p-4 space-y-6 overflow-y-auto">
         <div
           className="w-full max-w-6xl rounded-2xl shadow-lg border border-gray-200 overflow-hidden relative z-10"
           style={{

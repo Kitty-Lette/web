@@ -2,6 +2,17 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+#__next,
+[data-nextjs-scroll-focus-boundary] {
+  height: 100%;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

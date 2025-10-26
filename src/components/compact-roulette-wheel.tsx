@@ -84,6 +84,7 @@ export function CompactRouletteWheel() {
       setLastResult(null);
       
       setTimeout(() => {
+        // eslint-disable-next-line react-hooks/immutability
         const selectedNft = getRandomNFTByWeight();
         setLastResult(selectedNft);
         setIsSpinning(false);
@@ -906,6 +907,23 @@ export function CompactRouletteWheel() {
                     <span>•</span>
                     <span>Kitty Lette</span>
                   </div>
+
+                  {/* Transaction Hash - Minimalist */}
+                  {spinHash && (
+                    <div className="mt-4 text-center">
+                      <a
+                        href={`https://evm-testnet.flowscan.io/tx/${spinHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 text-xs text-blue-600 hover:text-blue-800 transition-colors group"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span className="underline group-hover:no-underline">View transaction hash</span>
+                      </a>
+                    </div>
+                  )}
                 </motion.div>
 
                 {/* Action Buttons */}
