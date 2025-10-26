@@ -52,7 +52,7 @@ export function RouletteWheel() {
         disabled={isSpinning}
         variant="gradient"
         size="lg"
-        className="px-12 py-6 text-xl font-bold transform hover:scale-105 transition-transform"
+        className="px-12 py-6 text-xl font-bold transform hover:scale-105 transition-transform cursor-pointer"
       >
         {isSpinning ? "SPINNING..." : "SPIN THE WHEEL"}
       </Button>
@@ -64,10 +64,10 @@ export function RouletteWheel() {
               {lastResult === "rare" ? "🌟 RARE NFT!" : "✨ COMMON NFT!"}
             </h3>
             <p className="text-gray-600">
-              You've won a {lastResult} Kitty Lette NFT collectible!
+              You&apos;ve won a {lastResult} Kitty Lette NFT collectible!
             </p>
-            <div className="mt-4 p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg">
-              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
+            <div className="mt-4 p-4 from-purple-100 to-pink-100 rounded-lg">
+              <div className="w-20 h-20 mx-auto from-purple-400 to-pink-400 rounded-lg flex items-center justify-center">
                 <span className="text-2xl">🐱</span>
               </div>
               <p className="mt-2 font-semibold">

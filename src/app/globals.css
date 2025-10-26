@@ -115,8 +115,15 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
+  html, body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  
+  #__next {
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 }
 
@@ -218,14 +225,14 @@
   0% {
     transform: translateX(0%);
   }
-  50% {
-    transform: translateX(120%);
+  33.33% {
+    transform: translateX(-33.33%);
   }
-  50.01% {
-    transform: translateX(-120%);
+  66.66% {
+    transform: translateX(-66.66%);
   }
   100% {
-    transform: translateX(0%);
+    transform: translateX(-100%);
   }
 }
 

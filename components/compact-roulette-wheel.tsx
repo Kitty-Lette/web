@@ -7,27 +7,20 @@ import Image from "next/image"
 const nftImages = [
   { src: "/Images/NFT/nft-common-kitty-lette.png", type: "common", name: "Common Sailor Cat", rarity: "Common" },
   { src: "/Images/NFT/nft-rare-kitty-lette.png", type: "rare", name: "Rare Pirate Cat", rarity: "Rare" },
-  { src: "/Images/NFT/nft-legendary-kitty-lette.png", type: "legendary", name: "Legendary Captain Cat", rarity: "Legendary" }
+  { src: "/Images/NFT/nft-legendary-kitty-lette.png", type: "legendary", name: "Legendary Captain Cat", rarity: "Legendary" },
+  { src: "/Images/NFT/nft-mythic-kitty-lette.png", type: "mythic", name: "Mythic Treasure Master", rarity: "Mythic" }
 ]
 
 export function CompactRouletteWheel() {
   const [isSpinning, setIsSpinning] = useState(false)
   const [lastResult, setLastResult] = useState<typeof nftImages[0] | null>(null)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const handleSpin = () => {
     setIsSpinning(true)
     setLastResult(null)
-    setCurrentImageIndex(0)
     
-    // Cycle through images during spinning
-    const imageInterval = setInterval(() => {
-      setCurrentImageIndex(prev => (prev + 1) % nftImages.length)
-    }, 800) // Change image every 800ms
-    
-    // Simulate spin duration with train pass-through animation
+    // Simulate spin duration with train animation
     setTimeout(() => {
-      clearInterval(imageInterval)
       const randomIndex = Math.floor(Math.random() * nftImages.length)
       const selectedNft = nftImages[randomIndex]
       setLastResult(selectedNft)
@@ -38,42 +31,71 @@ export function CompactRouletteWheel() {
   return (
     <div className="text-center space-y-8">
       {/* NFT Collection Grid */}
-      <div className="relative bg-gray-50 rounded-3xl p-8 border border-gray-200 shadow-sm">
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">NFT Collection</h3>
-          <p className="text-sm text-gray-600">Spin to discover which treasure you&apos;ll claim!</p>
+      <div className="relative rounded-3xl p-8 border border-gray-200 shadow-sm overflow-hidden">
+        {/* Blue + White Sky Gradient - Top Background */}
+        <div
+          className="absolute inset-0 z-0"
+          style={{
+            background: `linear-gradient(225deg, #E3F2FD 0%, #BBDEFB 20%, #FFFFFF 40%, #F0F8FF 60%, #E1F5FE 80%, #B3E5FC 100%)`,
+          }}
+        />
+        
+        {/* Content Layer */}
+        <div className="relative z-10">
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Kitty Pirate Treasure Vault</h3>
+            <p className="text-sm text-gray-600">Spin the wheel of fortune and claim your legendary treasure!</p>
+          </div>
         </div>
 
         {/* NFT Display Container */}
-        <div className="w-full bg-white rounded-2xl border-2 border-gray-100 mb-8 shadow-inner p-6">
+        <div className="relative z-10 w-full bg-white rounded-2xl border-2 border-gray-100 mb-8 shadow-inner ">
           {isSpinning ? (
             <div className="flex justify-center">
               <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 w-full max-w-sm">
-                {/* Spinning NFT Image with Train Pass-Through Animation */}
+                {/* Train Animation with Full-Size NFT Images */}
                 <div className="relative aspect-square bg-gray-50 overflow-hidden">
-                  {/* Static background */}
-                  <div className="absolute inset-0 bg-gray-50"></div>
+                  {/* Background Image - Always Visible (Mythic for FOMO) */}
+                  <div className="absolute inset-0">
+                    <Image
+                      src={nftImages[3].src}
+                      alt="Background NFT"
+                      width={300}
+                      height={300}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
                   
-                  {/* Animated NFT Image */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-full h-full animate-[trainPassThrough_4s_linear_infinite]">
-                      <Image
-                        src={nftImages[currentImageIndex].src}
-                        alt={nftImages[currentImageIndex].name}
-                        width={300}
-                        height={300}
-                        className="object-cover w-full h-full"
-                      />
+                  {/* Continuous Train of Full-Size NFT Images */}
+                  <div className="absolute inset-0">
+                    <div className="flex animate-[trainPassThrough_4s_linear_infinite] h-full">
+                      {/* Create enough images to fill the space continuously */}
+                      {[...nftImages, ...nftImages].map((nft, index) => (
+                        <div key={index} className="shrink-0 w-full h-full relative">
+                          <Image
+                            src={nft.src}
+                            alt={nft.name}
+                            width={300}
+                            height={300}
+                            className="object-cover w-full h-full"
+                          />
+                          {/* Rarity Badge */}
+                          <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
+                            nft.type === 'mythic' ? ' from-yellow-500 to-orange-500 text-white' :
+                            nft.type === 'legendary' ? 'bg-yellow-100/90 text-yellow-800' :
+                            nft.type === 'rare' ? 'bg-purple-100/90 text-purple-800' :
+                            'bg-blue-100/90 text-blue-800'
+                          }`}>
+                            {nft.type === 'mythic' ? '✨ ' + nft.rarity : nft.rarity}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                   
-                  {/* Dynamic Rarity Badge */}
-                  <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold z-10 backdrop-blur-sm animate-pulse ${
-                    nftImages[currentImageIndex].type === 'legendary' ? 'bg-yellow-100/90 text-yellow-800' :
-                    nftImages[currentImageIndex].type === 'rare' ? 'bg-purple-100/90 text-purple-800' :
-                    'bg-blue-100/90 text-blue-800'
-                  }`}>
-                    {nftImages[currentImageIndex].rarity}
+                  {/* Spinning Badge */}
+                  <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold bg-white/90 text-gray-800 z-20 backdrop-blur-sm animate-pulse">
+                    Spinning...
                   </div>
                 </div>
                 
@@ -81,7 +103,7 @@ export function CompactRouletteWheel() {
                 <div className="p-4 space-y-3">
                   {/* NFT Name */}
                   <h3 className="text-lg font-bold text-gray-900 animate-pulse">
-                    {nftImages[currentImageIndex].name}
+                    Choose Your Treasure!
                   </h3>
                   
                   {/* NFT Details */}
@@ -96,12 +118,8 @@ export function CompactRouletteWheel() {
                     </div>
                     <div className="flex justify-between">
                       <span>Rarity</span>
-                      <span className={`font-medium animate-pulse ${
-                        nftImages[currentImageIndex].type === 'legendary' ? 'text-yellow-600' :
-                        nftImages[currentImageIndex].type === 'rare' ? 'text-purple-600' :
-                        'text-blue-600'
-                      }`}>
-                        {nftImages[currentImageIndex].rarity}
+                      <span className="font-medium text-gray-800 animate-pulse">
+                        Determining...
                       </span>
                     </div>
                   </div>
@@ -129,15 +147,15 @@ export function CompactRouletteWheel() {
                 {/* NFT Image */}
                 <div className="relative aspect-square bg-gray-50">
                   <Image
-                    src={nftImages[1].src}
-                    alt={nftImages[1].name}
+                    src={nftImages[3].src}
+                    alt={nftImages[3].name}
                     width={300}
                     height={300}
                     className="object-cover w-full h-full"
                   />
-                  {/* Rarity Badge */}
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
-                    Mystery
+                  {/* Mythic Rarity Badge for FOMO */}
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-yellow-500 to-orange-500 text-white">
+                    ✨ Mythic
                   </div>
                 </div>
                 
@@ -145,7 +163,7 @@ export function CompactRouletteWheel() {
                 <div className="p-4 space-y-3">
                   {/* NFT Name */}
                   <h3 className="text-lg font-bold text-gray-900">
-                    Mystery NFT Treasure
+                    {nftImages[3].name}
                   </h3>
                   
                   {/* NFT Details */}
@@ -160,24 +178,24 @@ export function CompactRouletteWheel() {
                     </div>
                     <div className="flex justify-between">
                       <span>Rarity</span>
-                      <span className="font-medium text-gray-800">
-                        Variable
+                      <span className="font-medium text-orange-600">
+                        {nftImages[3].rarity}
                       </span>
                     </div>
                   </div>
 
                   {/* Stats Row */}
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div className="flex items-center space-x-1 text-blue-600">
-                      <span className="text-lg font-bold">312</span>
+                    <div className="flex items-center space-x-1 text-orange-600">
+                      <span className="text-lg font-bold">7</span>
                       <span className="text-xs">collectors</span>
                     </div>
-                    <div className="flex items-center space-x-1 text-blue-600">
-                      <span className="text-lg font-bold">???</span>
-                      <span className="text-xs">rarity</span>
+                    <div className="flex items-center space-x-1 text-orange-600">
+                      <span className="text-lg font-bold">0.1%</span>
+                      <span className="text-xs">drop rate</span>
                     </div>
-                    <div className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
-                      Mystery
+                    <div className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-yellow-500 to-orange-500 text-white">
+                      ✨ Ultra Rare
                     </div>
                   </div>
                 </div>
@@ -186,14 +204,15 @@ export function CompactRouletteWheel() {
           )}
         </div>
 
-        {/* Spin Button */}
-        <Button
-          onClick={handleSpin}
-          disabled={isSpinning}
-          className="bg-gray-900 hover:bg-gray-800 text-white px-12 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-        >
-          {isSpinning ? "SPINNING..." : "SPIN THE WHEEL"}
-        </Button>
+        <div className="relative z-10">
+          <Button
+            onClick={handleSpin}
+            disabled={isSpinning}
+            className="cursor-pointer bg-gray-900 hover:bg-gray-800 text-white px-12 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {isSpinning ? "SPINNING..." : "SPIN THE WHEEL"}
+          </Button>
+        </div>
       </div>
 
       {/* Result Pop-up Modal */}
@@ -228,11 +247,12 @@ export function CompactRouletteWheel() {
                     />
                   </div>
                   <div className={`absolute -top-3 -right-3 px-3 py-2 rounded-full text-sm font-bold ${
+                    lastResult.type === 'mythic' ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-2 border-orange-300' :
                     lastResult.type === 'legendary' ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-200' :
                     lastResult.type === 'rare' ? 'bg-purple-100 text-purple-800 border-2 border-purple-200' :
                     'bg-blue-100 text-blue-800 border-2 border-blue-200'
                   }`}>
-                    {lastResult.rarity}
+                    {lastResult.type === 'mythic' ? '✨ ' + lastResult.rarity : lastResult.rarity}
                   </div>
                 </div>
                 
