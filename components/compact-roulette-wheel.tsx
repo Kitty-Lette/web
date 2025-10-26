@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import FuzzyText from "./FuzzyText";
+import { motion, AnimatePresence } from "framer-motion";
 
 const nftImages = [
   {
@@ -396,90 +397,137 @@ export function CompactRouletteWheel() {
         </div>
       </div>
 
-      {/* Result Pop-up Modal */}
-      {lastResult && !isSpinning && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full transform animate-in zoom-in-95 duration-300">
-            <div className="p-8 text-center">
-              {/* Close Button */}
-              <button
-                onClick={() => setLastResult(null)}
-                className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
-              >
-                <span className="text-gray-500 text-lg">✕</span>
-              </button>
-
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Congratulations!
-                </h3>
-                <p className="text-gray-600">
-                  You&apos;ve won a magnificent treasure!
-                </p>
+      {/* Clean Minimalist Pop-up Modal */}
+      <AnimatePresence>
+        {lastResult && !isSpinning && (
+          <motion.div
+            className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 sm:p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className="bg-white rounded-2xl shadow-xl max-w-sm w-full mx-auto"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{ 
+                type: "spring",
+                damping: 20,
+                stiffness: 300,
+                duration: 0.4
+              }}
+            >
+              {/* Header */}
+              <div className="relative p-6 pb-4 border-b border-gray-100">
+                <motion.button
+                  onClick={() => setLastResult(null)}
+                  className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <span className="text-gray-400 text-lg">×</span>
+                </motion.button>
+                
+                <motion.div
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                    Congratulations!
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    You won a treasure
+                  </p>
+                </motion.div>
               </div>
 
-              <div className="flex flex-col items-center space-y-6 mb-6">
-                <div className="relative">
-                  <div className="w-40 h-40 bg-gray-50 rounded-3xl border-2 border-gray-200 p-4 shadow-lg">
+              {/* NFT Display */}
+              <div className="p-6">
+                <motion.div
+                  className="relative mb-4"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                >
+                  <div className="w-full aspect-square bg-gray-50 rounded-xl p-4 border border-gray-200">
                     <Image
                       src={lastResult.src}
                       alt={lastResult.name}
-                      width={128}
-                      height={128}
-                      className="object-contain w-full h-full"
+                      width={200}
+                      height={200}
+                      className="object-contain w-full h-full rounded-xl"
                     />
                   </div>
-                  <div
-                    className={`absolute -top-3 -right-3 px-3 py-2 rounded-full text-sm font-bold ${
+                  
+                  {/* Simple Rarity Badge */}
+                  <motion.div
+                    className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-xs font-medium ${
                       lastResult.type === "mythic"
-                        ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-2 border-orange-300"
+                        ? "bg-yellow-500 text-white"
                         : lastResult.type === "legendary"
-                        ? "bg-yellow-100 text-yellow-800 border-2 border-yellow-200"
+                        ? "bg-yellow-100 text-yellow-800"
                         : lastResult.type === "rare"
-                        ? "bg-purple-100 text-purple-800 border-2 border-purple-200"
-                        : "bg-blue-100 text-blue-800 border-2 border-blue-200"
+                        ? "bg-purple-100 text-purple-800"
+                        : "bg-blue-100 text-blue-800"
                     }`}
+                    initial={{ scale: 0, x: 10, y: -10 }}
+                    animate={{ scale: 1, x: 0, y: 0 }}
+                    transition={{ delay: 0.3, type: "spring" }}
                   >
-                    {lastResult.type === "mythic"
-                      ? "✨ " + lastResult.rarity
-                      : lastResult.rarity}
-                  </div>
-                </div>
+                    {lastResult.rarity}
+                  </motion.div>
+                </motion.div>
 
-                <div className="text-center">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">
+                {/* NFT Info */}
+                <motion.div
+                  className="text-center mb-6"
+                  initial={{ y: 15, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <h4 className="font-semibold text-gray-900 mb-2 text-base">
                     {lastResult.name}
                   </h4>
-                  <p className="text-gray-600 mb-4">
-                    A precious addition to your collection
-                  </p>
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-sm text-gray-700 font-medium">
-                      This NFT has been added to your treasure chest!
-                    </p>
+                  <div className="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                    <span>NFT</span>
+                    <span>•</span>
+                    <span>Kitty Lette</span>
                   </div>
-                </div>
-              </div>
+                </motion.div>
 
-              {/* Action Buttons */}
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => setLastResult(null)}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-6 rounded-xl font-semibold transition-colors cursor-pointer"
+                {/* Action Buttons */}
+                <motion.div
+                  className="space-y-3"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
                 >
-                  Close
-                </button>
-                <button
-                  onClick={handleSpin}
-                  className="flex-1 bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-xl font-semibold transition-colors cursor-pointer"
-                >
-                  Spin Again
-                </button>
+                  <motion.button
+                    onClick={handleSpin}
+                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-4 rounded-xl font-medium transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Spin Again
+                  </motion.button>
+                  
+                  <motion.button
+                    onClick={() => setLastResult(null)}
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-medium transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Close
+                  </motion.button>
+                </motion.div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
