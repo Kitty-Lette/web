@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { WheelSkeleton } from "./skeletons/WheelSkeleton";
+import { useMintFroth } from "../hooks/useMintFroth";
 
 const nftImages = [
   {
@@ -54,9 +55,11 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
   );
   const [completedSpinHash, setCompletedSpinHash] = useState<string | null>(null);
   const [isWaitingForSpinHash, setIsWaitingForSpinHash] = useState(false);
+  const [showMintSuccess, setShowMintSuccess] = useState(false);
+  const [mintTransactionHash, setMintTransactionHash] = useState<string | null>(null);
   const hoverIntensity = 0.4;
   const { price, loading: priceLoading } = useGetPrice();
-  const { balance, loading: balanceLoading } = useGetBalance();
+  const { balance, loading: balanceLoading, refetch: refetchBalance } = useGetBalance();
   const { balance: flowBalance, loading: flowBalanceLoading } = useGetFlowBalance();
   const { isConnected } = useAccount();
   const {
@@ -70,6 +73,12 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
     spinHash,
     reset: resetSpin,
   } = useExecuteSpin();
+
+  const { mintFroth, isLoading: isMinting, error: mintError, hash: mintHash, isSuccess: mintSuccess } = useMintFroth({
+    onSuccess: () => {
+      refetchBalance();
+    }
+  });
 
   const formatBalance = (balance: bigint) => {
     const formatted = formatEther(balance);
@@ -128,6 +137,13 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
   useEffect(() => {
     onPopupChange?.(!!lastResult && !isSpinning);
   }, [lastResult, isSpinning, onPopupChange]);
+
+  useEffect(() => {
+    if (mintSuccess && mintHash) {
+      setMintTransactionHash(mintHash);
+      setShowMintSuccess(true);
+    }
+  }, [mintSuccess, mintHash]);
 
   const testingMode = "mythic" as
     | "normal"
@@ -548,28 +564,72 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
           )}
         </div>
 
-        {/* FROTH Balance - Minimalist */}
+        {/* FROTH Balance & Mint Section */}
         {isConnected && (
-          <div className="relative z-10 mb-3">
-            <div className="flex items-center justify-center space-x-2 bg-white/15 backdrop-blur-sm rounded-lg px-2 py-1 border border-white/20">
-              <Image
-                src="/Images/Logo/froth-token-logo.png"
-                alt="FROTH"
-                width={14}
-                height={14}
-                className="object-contain"
-              />
-              <span className="text-white/80 text-xs font-medium">FROTH:</span>
-              {balanceLoading ? (
-                <div className="animate-pulse">
-                  <div className="h-4 bg-white/30 rounded w-12"></div>
+          <div className="relative z-10 mb-3 space-y-2">
+            {/* Balance Display and Mint Button - Side by Side */}
+            <div className="flex items-center justify-center space-x-2">
+              {/* Balance Display */}
+              <div className="flex items-center space-x-2 bg-white/15 backdrop-blur-sm rounded-lg px-2 py-1 border border-white/20">
+                <Image
+                  src="/Images/Logo/froth-token-logo.png"
+                  alt="FROTH"
+                  width={14}
+                  height={14}
+                  className="object-contain"
+                />
+                <span className="text-white/80 text-xs font-medium">FROTH:</span>
+                {balanceLoading ? (
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-white/30 rounded w-12"></div>
+                  </div>
+                ) : (
+                  <span className="text-white font-semibold text-sm">
+                    {balance ? formatBalance(balance) : "0"}
+                  </span>
+                )}
+              </div>
+              
+              {/* Mint Button */}
+              <button
+                onClick={() => mintFroth("1000")}
+                disabled={isMinting}
+                className="cursor-pointer relative overflow-hidden bg-gradient-to-r from-emerald-600 via-emerald-700 to-emerald-600 hover:from-emerald-500 hover:via-emerald-600 hover:to-emerald-500 text-white px-3 py-1 rounded-lg font-medium text-xs transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 border border-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                <div className="absolute inset-0 opacity-30">
+                  <Balatro
+                    isRotate={true}
+                    mouseInteraction={false}
+                    pixelFilter={300}
+                    color1="#10b981"
+                    color2="#059669"
+                    color3="#047857"
+                    spinSpeed={0.8}
+                    contrast={1.5}
+                    lighting={0.2}
+                  />
                 </div>
-              ) : (
-                <span className="text-white font-semibold text-sm">
-                  {balance ? formatBalance(balance) : "0"}
+                <span className="cursor-pointer relative z-10 flex items-center space-x-1 p-0.5">
+                  {!isMinting && (
+                    <Image
+                      src="/Images/Logo/froth-token-logo.png"
+                      alt="FROTH"
+                      width={12}
+                      height={12}
+                      className="object-contain"
+                    />
+                  )}
+                  <span>{isMinting ? "Minting..." : "Mint $FROTH"}</span>
                 </span>
-              )}
+              </button>
             </div>
+            
+            {/* Error Display */}
+            {mintError && (
+              <div className="text-red-400 text-xs text-center bg-red-500/10 backdrop-blur-sm rounded px-2 py-1">
+                {mintError}
+              </div>
+            )}
           </div>
         )}
 
@@ -1038,6 +1098,136 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
                       </motion.button>
                     </>
                   )}
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mint Success Pop-up Modal */}
+      <AnimatePresence>
+        {showMintSuccess && (
+          <motion.div
+            className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-3 sm:p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className="relative bg-white/80 backdrop-blur-xl rounded-xl shadow-xl max-w-xs w-full mx-auto overflow-hidden border border-white/20"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              transition={{
+                type: "spring",
+                damping: 20,
+                stiffness: 300,
+                duration: 0.4,
+              }}
+            >
+              {/* Emerald Background for Mint Success */}
+              <div className="absolute inset-0 z-0">
+                <Balatro
+                  isRotate={true}
+                  mouseInteraction={false}
+                  pixelFilter={400}
+                  color1="#10b981"
+                  color2="#059669"
+                  color3="#047857"
+                  contrast={3.5}
+                  lighting={0.5}
+                  spinAmount={0.25}
+                  spinSpeed={1.2}
+                  spinRotation={-1.0}
+                />
+              </div>
+
+              {/* Overlay for readability */}
+              <div className="absolute inset-0 z-5 bg-gradient-to-b from-emerald-50/80 via-emerald-50/70 to-emerald-50/80" />
+              
+              {/* Header */}
+              <div className="relative z-10 p-4 pb-3 border-b border-white/20">
+                <motion.button
+                  onClick={() => setShowMintSuccess(false)}
+                  className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <span className="text-gray-600 text-lg cursor-pointer">×</span>
+                </motion.button>
+
+                <motion.div
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <h3 className="text-base font-semibold text-gray-800 mb-1">
+                    Mint Successful! 🎉
+                  </h3>
+                  <p className="text-sm text-gray-600">1000 FROTH tokens minted</p>
+                </motion.div>
+              </div>
+
+              {/* Success Content */}
+              <div className="relative z-10 p-4">
+                <motion.div
+                  className="text-center mb-6"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                >
+                  {/* Success Icon with FROTH logo */}
+                  <div className="w-16 h-16 mx-auto mb-4 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <Image
+                      src="/Images/Logo/froth-token-logo.png"
+                      alt="FROTH"
+                      width={32}
+                      height={32}
+                      className="object-contain"
+                    />
+                  </div>
+                  
+                  <h4 className="font-semibold text-gray-800 mb-2 text-sm">
+                    1000 FROTH Tokens
+                  </h4>
+                  <p className="text-xs text-gray-600 mb-4">
+                    Successfully minted to your wallet
+                  </p>
+
+                  {/* Transaction Hash Link */}
+                  {mintTransactionHash && (
+                    <div className="mt-4 text-center">
+                      <a
+                        href={`https://evm-testnet.flowscan.io/tx/${mintTransactionHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 text-xs text-emerald-600 hover:text-emerald-800 transition-colors group"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span className="underline group-hover:no-underline">View transaction hash</span>
+                      </a>
+                    </div>
+                  )}
+                </motion.div>
+
+                {/* Close Button */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <motion.button
+                    onClick={() => setShowMintSuccess(false)}
+                    className="cursor-pointer w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-3 rounded-lg font-medium transition-colors shadow-lg"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Close
+                  </motion.button>
                 </motion.div>
               </div>
             </motion.div>
