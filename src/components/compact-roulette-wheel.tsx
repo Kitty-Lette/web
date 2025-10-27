@@ -14,6 +14,7 @@ import { formatEther } from "viem";
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { WheelSkeleton } from "./skeletons/WheelSkeleton";
 
 const nftImages = [
   {
@@ -189,6 +190,11 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
     // Then start a new spin
     await handleSpin();
   };
+
+  // Show full skeleton loading when any loading state is true
+  if (priceLoading || balanceLoading || flowBalanceLoading) {
+    return <WheelSkeleton />;
+  }
 
   return (
     <div className="text-center space-y-5">

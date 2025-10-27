@@ -2,12 +2,25 @@
 
 import Image from "next/image";
 import { CompactRouletteWheel } from "../../components/compact-roulette-wheel";
+import { HeroSkeleton } from "../../components/skeletons/HeroSkeleton";
+import { useGetPrice } from "../../hooks/useGetPrice";
+import { useGetBalance } from "../../hooks/useGetBalance";
+import { useGetFlowBalance } from "../../hooks/useGetFlowBalance";
 
 interface HeroSectionProps {
   onPopupChange: (isOpen: boolean) => void;
 }
 
 export function HeroSection({ onPopupChange }: HeroSectionProps) {
+  const { loading: priceLoading } = useGetPrice();
+  const { loading: balanceLoading } = useGetBalance();
+  const { loading: flowBalanceLoading } = useGetFlowBalance();
+
+  // Show full skeleton loading when any loading state is true
+  if (priceLoading || balanceLoading || flowBalanceLoading) {
+    return <HeroSkeleton />;
+  }
+
   return (
     <div className="grid md:grid-cols-2 min-h-[400px]">
       <div

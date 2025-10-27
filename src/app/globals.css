@@ -150,6 +150,10 @@ body {
   .animate-sparkle {
     animation: sparkle 2s ease-in-out infinite;
   }
+
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+  }
 }
 
 @keyframes float {
@@ -271,6 +275,15 @@ body {
   50% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }
 
