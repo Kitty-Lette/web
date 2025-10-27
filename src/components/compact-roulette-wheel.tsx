@@ -135,8 +135,8 @@ export function CompactRouletteWheel({ onPopupChange }: CompactRouletteWheelProp
   }, [spinError]);
 
   useEffect(() => {
-    onPopupChange?.(!!lastResult && !isSpinning);
-  }, [lastResult, isSpinning, onPopupChange]);
+    onPopupChange?.(!!lastResult && !isSpinning || showMintSuccess);
+  }, [lastResult, isSpinning, showMintSuccess, onPopupChange]);
 
   useEffect(() => {
     if (mintSuccess && mintHash) {
